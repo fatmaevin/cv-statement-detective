@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Waiting Room</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<header>
+  <h1>CV Personal Statement Game</h1>
+</header>
+
+<main>
+
+  <!-- Waiting Message -->
+  <section class="waiting-message">
+    <h2>Waiting for the game to start...</h2>
+    <p>The volunteer will start the game when everyone has joined.</p>
+  </section>
+
+
+  <!-- Players who joined -->
+  <section class="players">
+    <h3>Players in the room</h3>
+
+    <ul id="players-list">
+      <li>Fatma</li>
+      <li>Sheida</li>
+      <li>Fred</li>
+      <li>Suraj</li>
+    </ul>
+
+    <p id="players-count">4 players joined</p>
+  </section>
+
+
+  <!-- Start Game (Volunteer only) -->
+  <section class="start-game">
+    <button id="start-game-btn" disabled>Start Game</button>
+    <p class="note">
+      Button will enable once all trainees submit their statements.
+    </p>
+  </section>
+
+</main>
+
+</body>
+</html>
