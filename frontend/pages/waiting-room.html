@@ -3,48 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <title>Waiting Room</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="/style/style.css" />
 </head>
 
-<body>
+<body class="page-container">
 
-<header>
-  <h1>CV Personal Statement Game</h1>
-</header>
+  <div class="card">
+    <header class="brand-bg text-center py-6">
+      <h1 class="text-2xl font-bold">CV Personal Statement Game</h1>
+      <p class="opacity-90">Waiting Room</p>
+    </header>
 
-<main>
+    <main class="card-body">
 
-  <!-- Waiting Message -->
-  <section class="waiting-message">
-    <h2>Waiting for the game to start...</h2>
-    <p>The volunteer will start the game when everyone has joined.</p>
-  </section>
+      <section>
+        <h2 class="waiting-title">Waiting for the game to start...</h2>
+        <p class="waiting-subtext">
+          The volunteer will start the game when everyone has joined.
+        </p>
+      </section>
 
+      <section>
+        <h3 class="players-title">Players in the room</h3>
 
-  <!-- Players who joined -->
-  <section class="players">
-    <h3>Players in the room</h3>
+        <ul class="players-grid">
+          <li class="player-item">Fatma</li>
+          <li class="player-item">Sheida</li>
+          <li class="player-item">Fred</li>
+          <li class="player-item">Suraj</li>
+        </ul>
 
-    <ul id="players-list">
-      <li>Fatma</li>
-      <li>Sheida</li>
-      <li>Fred</li>
-      <li>Suraj</li>
-    </ul>
+        <p class="note-text">4 players joined</p>
+      </section>
 
-    <p id="players-count">4 players joined</p>
-  </section>
+      <section class="start-section">
+        <button class="brand-button" disabled>Start Game</button>
+        <p class="note-text">
+          Button will enable once all trainees submit their statements.
+        </p>
+      </section>
 
-
-  <!-- Start Game (Volunteer only) -->
-  <section class="start-game">
-    <button id="start-game-btn" disabled>Start Game</button>
-    <p class="note">
-      Button will enable once all trainees submit their statements.
-    </p>
-  </section>
-
-</main>
+    </main>
+  </div>
 
 </body>
 </html>

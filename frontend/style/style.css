@@ -1,1 +1,69 @@
 @import "tailwindcss";
+
+/* Project brand color utilities */
+
+.brand-bg {
+  background-color: #CC5B50;
+  @apply text-white;
+}
+
+.brand-button {
+  background-color: #CC5B50;
+  @apply text-white px-6 py-3 rounded-lg font-semibold transition;
+}
+
+.brand-button:hover {
+  background-color: #b94f45;
+}
+
+.brand-button:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+/* Page layout */
+
+.page-container {
+  @apply min-h-screen flex items-center justify-center bg-gray-100;
+}
+
+.card {
+  @apply bg-white max-w-2xl w-full rounded-2xl shadow-lg overflow-hidden;
+}
+
+.card-body {
+  @apply p-8 space-y-6;
+}
+
+/* Waiting room message */
+
+.waiting-title {
+  @apply text-xl font-semibold text-gray-700 text-center;
+}
+
+.waiting-subtext {
+  @apply text-gray-500 text-center mt-2;
+}
+
+/* Players list */
+
+.players-title {
+  @apply font-semibold text-gray-700 mb-3;
+}
+
+.players-grid {
+  @apply grid grid-cols-2 gap-3;
+}
+
+.player-item {
+  @apply bg-gray-100 p-3 rounded-lg text-center;
+}
+
+/* Start game section */
+
+.start-section {
+  @apply text-center pt-4;
+}
+
+.note-text {
+  @apply text-xs text-gray-400 mt-2;
+}
