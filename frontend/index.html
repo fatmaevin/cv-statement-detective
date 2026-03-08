@@ -6,10 +6,22 @@
     <title>CV Matching Game - Homepage</title>
     <link rel="stylesheet" href="/style/style.css" />
   </head>
-  <body class="bg-gray-100">
-    <h1 class="text-3xl font-bold underline text-center mt-10">
-      Welcome to the CV Matching Game!
-    </h1>
+  <body class="h-screen grid place-items-center bg-white">
+    <div id="homepage-container" class="flex flex-col items-center space-y-4">
+      <h1 class="text-3xl font-bold text-center mb-4">
+        Welcome to the CV Statement Detective Game!
+      </h1>
+      <p class="text-center text-gray-600 mb-8">
+        Test how personal your CV statements are and have fun with your
+        classmates!
+      </p>
+      <button
+        id="create-game"
+        class="brand-button text-2xl shadow-md w-80 h-20"
+      >
+        Create Game
+      </button>
+    </div>
 
     <script type="module" src="/js/main.js"></script>
   </body>
