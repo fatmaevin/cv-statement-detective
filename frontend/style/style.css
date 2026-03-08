@@ -20,7 +20,7 @@
   @apply opacity-50 cursor-not-allowed;
 }
 
-/* Page layout */
+/* PAGE WAITING ROOM TO START */
 
 .page-container {
   @apply min-h-screen flex items-center justify-center bg-gray-100;
