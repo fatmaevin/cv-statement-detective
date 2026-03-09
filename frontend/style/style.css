@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
-/* Project brand color utilities */
+/* ++++++++++++++++++++++++++++++++++++++++++++ */
+/* PROJECT BRAND STYLES */
+/* ++++++++++++++++++++++++++++++++++++++++++++ */
 
 .brand-bg {
   background-color: #CC5B50;
@@ -20,10 +22,13 @@
   @apply opacity-50 cursor-not-allowed;
 }
 
-/* PAGE WAITING ROOM TO START */
+
+/* ++++++++++++++++++++++++++++++++++++++++++++ */
+/* SHARED PAGE LAYOUT */
+/* ++++++++++++++++++++++++++++++++++++++++++++ */
 
 .page-container {
-  @apply min-h-screen flex items-center justify-center bg-gray-100;
+  @apply min-h-screen flex items-center justify-center bg-gray-100 p-4;
 }
 
 .card {
@@ -34,7 +39,10 @@
   @apply p-8 space-y-6;
 }
 
-/* Waiting room message */
+
+/* ++++++++++++++++++++++++++++++++++++++++++++ */
+/* SHARED TEXT STYLES */
+/* ++++++++++++++++++++++++++++++++++++++++++++ */
 
 .waiting-title {
   @apply text-xl font-semibold text-gray-700 text-center;
@@ -44,11 +52,22 @@
   @apply text-gray-500 text-center mt-2;
 }
 
-/* Players list */
-
 .players-title {
   @apply font-semibold text-gray-700 mb-3;
 }
+
+.note-text {
+  @apply text-xs text-gray-400 mt-2;
+}
+
+.start-section {
+  @apply text-center pt-4;
+}
+
+
+/* ++++++++++++++++++++++++++++++++++++++++++++ */
+/* WAITING ROOM PAGE */
+/* ++++++++++++++++++++++++++++++++++++++++++++ */
 
 .players-grid {
   @apply grid grid-cols-2 gap-3;
@@ -58,12 +77,43 @@
   @apply bg-gray-100 p-3 rounded-lg text-center;
 }
 
-/* Start game section */
 
-.start-section {
-  @apply text-center pt-4;
+/* ++++++++++++++++++++++++++++++++++++++++++++ */
+/* GAME PAGE */
+/* ++++++++++++++++++++++++++++++++++++++++++++ */
+
+.statement-box {
+  @apply bg-gray-50 border border-gray-200 rounded-xl p-6 space-y-3;
 }
 
-.note-text {
-  @apply text-xs text-gray-400 mt-2;
+.statement-label {
+  @apply text-sm font-semibold uppercase tracking-wide text-gray-500;
+}
+
+.statement-text {
+  @apply text-lg text-gray-700 leading-relaxed italic;
+}
+
+.guess-form {
+  @apply space-y-6;
+}
+
+.players-options {
+  @apply grid grid-cols-1 sm:grid-cols-2 gap-3;
+}
+
+.player-option {
+  @apply bg-gray-100 rounded-lg px-4 py-3 cursor-pointer flex items-center gap-3 transition;
+}
+
+.player-option:hover {
+  @apply bg-gray-200;
+}
+
+.player-option input[type="radio"] {
+  @apply w-4 h-4;
+}
+
+.player-option span {
+  @apply font-medium text-gray-700;
 }
