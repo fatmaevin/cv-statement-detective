@@ -6,6 +6,7 @@
   <title>Game Page</title>
   <link rel="stylesheet" href="/style/style.css" />
 </head>
+
 <body class="page-container">
 
   <div class="card">
@@ -25,50 +26,57 @@
         </p>
       </section>
 
+      <!-- Statement -->
       <section class="statement-box">
         <p class="statement-label">Anonymous Personal Statement</p>
-        <blockquote class="statement-text">
+
+        <blockquote id="statement-text" class="statement-text">
           “I am a motivated and enthusiastic person with a passion for helping others,
           learning new skills, and contributing positively to a team environment.”
         </blockquote>
       </section>
 
+      <!-- Guess Form -->
       <section>
         <h3 class="players-title">Choose a player</h3>
 
-        <form class="guess-form">
-          <div class="players-options">
-            <label class="player-option">
-              <input type="radio" name="player" value="Fred" />
+        <form id="player-guess-form" class="guess-form">
+
+          <div id="players-options" class="players-options">
+
+            <label class="player-option" for="player-fred">
+              <input id="player-fred" type="radio" name="player" value="Fred" />
               <span>FRED</span>
             </label>
 
-            <label class="player-option">
-              <input type="radio" name="player" value="Fatma" />
+            <label class="player-option" for="player-fatma">
+              <input id="player-fatma" type="radio" name="player" value="Fatma" />
               <span>FATMA</span>
             </label>
 
-            <label class="player-option">
-              <input type="radio" name="player" value="Suraj" />
+            <label class="player-option" for="player-suraj">
+              <input id="player-suraj" type="radio" name="player" value="Suraj" />
               <span>SURAJ</span>
             </label>
 
-            <label class="player-option">
-              <input type="radio" name="player" value="Jesus" />
+            <label class="player-option" for="player-jesus">
+              <input id="player-jesus" type="radio" name="player" value="Jesus" />
               <span>JESUS</span>
             </label>
 
-            <label class="player-option">
-              <input type="radio" name="player" value="Sheida" />
+            <label class="player-option" for="player-sheida">
+              <input id="player-sheida" type="radio" name="player" value="Sheida" />
               <span>SHEIDA</span>
             </label>
+
           </div>
 
           <div class="start-section">
-            <button type="submit" class="brand-button">
+            <button id="submit-guess-btn" type="submit" class="brand-button">
               Submit
             </button>
           </div>
+
         </form>
       </section>
 
