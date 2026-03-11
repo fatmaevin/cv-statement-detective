@@ -18,6 +18,16 @@
   background-color: #b94f45;
 }
 
+.brand-border {
+  border-color: #CC5B50;
+}
+
+.brand-border:focus {
+  border-color: #3b82f6; /* blue-500 */
+  outline: none;
+}
+
+
 .brand-button:disabled {
   @apply opacity-50 cursor-not-allowed;
 }
