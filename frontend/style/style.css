@@ -164,3 +164,19 @@ h1 {
     max-width: 160px;
   }
 }
+/* ++++++++++++++++++++++++++++++++++++++++++++ */
+/* RESULTS PAGE */
+/* ++++++++++++++++++++++++++++++++++++++++++++ */
+
+.result-item {
+  @apply flex
+  flex-col md:flex-row items-center gap-4;
+}
+.statement-card {
+  @apply bg-white p-6
+  rounded-xl shadow-xl w-full md:w-96;
+}
+.score-card {
+  @apply bg-gray-500
+  text-white px-4 py-2 rounded-lg;
+}
