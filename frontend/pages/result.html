@@ -6,40 +6,57 @@
     <link rel="stylesheet" href="/style/style.css" />
     <title>Result</title>
   </head>
-  <body>
-    <header class="brand-bg w-full text-center py-15">
-      <h1 class="text-2xl font-bold">Results</h1>
-      <p class="mt-5">Are you ready to see the results?</p>
-    </header>
+  <body class="page-container">
+    <div class="card">
+      <header class="brand-bg text-center py-12">
+        <img
+          src="/images/CYF-logo.png"
+          alt="CV Matching Game Logo"
+          class="project-logo"
+        />
+        <h1 class="text-2xl font-bold">Results</h1>
+        <p class="mt-5">Are you ready to see the results?</p>
+      </header>
+      <main class="card-body">
+        <section>
+          <div class="border-2 border-gray-300 rounded-xl p-4 text-center">
+            total statement: 4
+          </div>
+        </section>
+        <section class="space-y-6">
+          <div class="result-item">
+            <div class="statement-card">Statement 1</div>
+            <div class="score-card">
+              <p class="font-semibold">Score: 10</p>
+              <p class="text-sm">Result: Personal</p>
+            </div>
+          </div>
 
-    <div class="flex flex-col items-center gap-6 mt-10">
-      <div class="border-2 border-gray-300 rounded-xl p-4 mb-10">
-        total statement: 4
-      </div>
-      <div class="flex items-center gap-4">
-        <div class="bg-white p-6 rounded-xl shadow-xl w-100">statement 1</div>
-        <div class="bg-gray-500 text-white px-4 py-2 rounded-lg">
-          Score: 10 Result: Personal
-        </div>
-      </div>
-      <div class="flex items-center gap-4">
-        <div class="bg-white p-6 rounded-xl shadow-xl w-100">statement 2</div>
-        <div class="bg-gray-500 text-white px-4 py-2 rounded-lg">
-          Score: 10 Result: Personal
-        </div>
-      </div>
-      <div class="flex items-center gap-4">
-        <div class="bg-white p-6 rounded-xl shadow-xl w-100">statement 3</div>
-        <div class="bg-gray-500 text-white px-4 py-2 rounded-lg">
-          Score: 10 Result: Personal
-        </div>
-      </div>
-      <div class="flex items-center gap-4">
-        <div class="bg-white p-6 rounded-xl shadow-xl w-100">statement 4</div>
-        <div class="bg-gray-500 text-white px-4 py-2 rounded-lg">
-          Score: 10 Result: Personal
-        </div>
-      </div>
+          <div class="result-item">
+            <div class="statement-card">Statement 2</div>
+            <div class="score-card">
+              <p class="font-semibold">Score: 10</p>
+              <p class="text-sm">Result: Personal</p>
+            </div>
+          </div>
+
+          <div class="result-item">
+            <div class="statement-card">Statement 3</div>
+            <div class="score-card">
+              <p class="font-semibold">Score: 10</p>
+              <p class="text-sm">Result: Personal</p>
+            </div>
+          </div>
+
+          <div class="result-item">
+            <div class="statement-card">Statement 4</div>
+            <div class="score-card">
+              <p class="font-semibold">Score: 10</p>
+              <p class="text-sm">Result: Personal</p>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
   </body>
 </html>
