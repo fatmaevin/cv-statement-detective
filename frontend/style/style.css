@@ -67,3 +67,13 @@
 .note-text {
   @apply text-xs text-gray-400 mt-2;
 }
+
+
+/* ++++++++++++++++++++++++++++++++++++++++++++ */
+/* SHARED LOGO STYLE */
+/* ++++++++++++++++++++++++++++++++++++++++++++ */
+
+.project-logo {
+  @apply mx-auto mb-2 p-2 rounded-lg bg-gray-100;
+  max-width: 120px;
+}
