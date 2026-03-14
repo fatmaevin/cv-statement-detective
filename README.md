@@ -31,6 +31,8 @@ This project provides a website where:
 ## Tech Stack
 
 - Frontend: HTML, JavaScript, Tailwind CSS
-- Backend: 
+- Backend: Python,FastAPI
+- Database: PostgreSQL
 - Dev environment: Vite
+  
 
