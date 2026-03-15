@@ -23,18 +23,24 @@
           This game helps match personal statements with job requirements in a
           fun way!
         </p>
-        <button id="createGameBtn" class="brand-button mx-auto block mt-6">
-          Click to create a game
-        </button>
-
+        
         <form id="createLinkForm" class="mt-6 space-y-4">
+          <!-- Input player name -->
+          <input
+            type="text"
+            id="playerName"
+            aria-label="playerName"
+            placeholder="Enter your name"
+            required
+            class="border-2 brand-border rounded py-2 px-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
           <!-- Input optional passcode -->
           <input
             type="text"
             id="passcodeInput"
             aria-label="Passcode"
             placeholder="Enter passcode (optional)"
-            class="border border-gray-300 rounded py-2 px-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+            class="border-2 brand-border rounded py-2 px-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
 
           <!--submit button -->
@@ -45,7 +51,7 @@
           <div class="mt-4 w-full">
             <div
               id="gameLinkDisplay"
-              class="p-4 border border-gray-300 rounded bg-gray-100 text-blue-700 font-medium break-words h-24 overflow-auto"
+              class="p-4 border-2 brand-border rounded bg-gray-100 text-blue-700 font-medium break-words h-24 overflow-auto"
             >
               Your game link will appear here
             </div>
