@@ -1,4 +1,7 @@
 import os
+
+from app.models.statement import Statement
+from app.models.player import Player
 from app.database import Base
 from logging.config import fileConfig
 

@@ -1,9 +1,12 @@
-from sqlalchemy import Column, Integer, String
-from .database import Base
+import uuid
+from sqlalchemy import Column, String, ForeignKey
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
+from app.database import Base
 
-class Players(Base):
+class Player(Base):
     __tablename__ = "players"
 
-    id = Column(Integer, primary_key=True, index=True)
-    game_id = Column(String, ForeignKey("games.id"), index=True, nullable=False)
-    name = Column(String, index=True, nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    game_id = Column(UUID(as_uuid=True),  nullable=True)
+    name = Column(String, nullable=False)
