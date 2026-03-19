@@ -3,6 +3,8 @@ import os
 from app.models.statement import Statement
 from app.models.player import Player
 from app.models.guess import Guess
+from app.models.game import Game
+
 from app.database import Base
 from logging.config import fileConfig
 
