@@ -1,8 +1,8 @@
 """create statements table
 
-Revision ID: dd8fde95ca70
-Revises: 2f46bbfd61e7
-Create Date: 2026-03-18 23:22:56.506567
+Revision ID: 777af4255e19
+Revises: 9ce590563f75
+Create Date: 2026-03-19 17:23:16.013980
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'dd8fde95ca70'
-down_revision: Union[str, Sequence[str], None] = '2f46bbfd61e7'
+revision: str = '777af4255e19'
+down_revision: Union[str, Sequence[str], None] = '9ce590563f75'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -24,7 +24,7 @@ def upgrade() -> None:
     op.create_table('statements',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('game_id', sa.Integer(), nullable=True),
-    sa.Column('player_id', sa.UUID(), nullable=True),
+    sa.Column('player_id', sa.Integer(), nullable=False),
     sa.Column('statement', sa.Text(), nullable=False),
     sa.Column('has_been_shown', sa.Boolean(), nullable=True),
     sa.Column('score', sa.Integer(), nullable=True),
