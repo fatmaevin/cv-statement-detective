@@ -2,9 +2,12 @@ from fastapi import FastAPI, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+
 from app.database import SessionLocal
 from app.services.game_service import create_game, start_game
-
+from app.services.player_service import join_game, get_player
+from app.services.statement_service import get_statements, get_results
+from app.schemas import JoinGameRequest
 
 app = FastAPI()
 
@@ -28,6 +31,7 @@ class GameCreateRequest(BaseModel):
     host_id: int
     passcode: str
 
+
 # ENDPOINT TO CREATE A NEW GAME
 @app.post("/games")
 def create_game_endpoint(payload: GameCreateRequest, db: Session = Depends(get_db)):
@@ -35,15 +39,16 @@ def create_game_endpoint(payload: GameCreateRequest, db: Session = Depends(get_d
         db=db,
         host_name=payload.host_name,
         host_id=payload.host_id,
-        passcode=payload.passcode
+        passcode=payload.passcode,
     )
 
     return {
         "game_id": game.id,
         "status": game.status,
         "game_link": game.game_link,
-        "passcode": game.passcode
+        "passcode": game.passcode,
     }
+
 
 # ENDPOINT TO START A GAME
 @app.post("/games/{game_id}/start")
@@ -56,5 +61,49 @@ def start_game_endpoint(game_id: int, db: Session = Depends(get_db)):
     return {
         "game_id": game.id,
         "status": game.status,
-        "message": "Game started successfully"
+        "message": "Game started successfully",
     }
+
+
+# ENDPOINT FOR PLAYERS
+@app.post("/games/{game_id}/players")
+def join_game_endpoint(
+    payload: JoinGameRequest, game_id: int, db: Session = Depends(get_db)
+):
+
+    player = join_game(
+        db=db, name=payload.name, game_id=game_id, statement=payload.statement
+    )
+
+    return {"player_id": player.id, "game_id": player.game_id, "name": player.name}
+
+
+@app.get("/games/{game_id}/players/{player_id}")
+def get_player_endpoint(game_id: int, player_id: int, db: Session = Depends(get_db)):
+    player = get_player(db=db, game_id=game_id, player_id=player_id)
+
+    return {"player_id": player.id, "game_id": player.game_id, "name": player.name}
+
+
+# ENDPOINT FOR STATEMENTS
+
+
+@app.get("/games/{game_id}/current-statement")
+def get_statement_endpoint(game_id: int, db: Session = Depends(get_db)):
+    statement = get_statements(db=db, game_id=game_id)
+    return {"statement_id": statement.id, "statement": statement.statement}
+
+
+@app.get("/games/{game_id}/results")
+def get_results_endpoint(game_id: int, db: Session = Depends(get_db)):
+    statements = get_results(db=db, game_id=game_id)
+    result = []
+    for s in statements:
+        statement_data = {
+            "statement_id": s.id,
+            "statement": s.statement,
+            "score": s.score,
+        }
+
+        result.append(statement_data)
+    return result    
