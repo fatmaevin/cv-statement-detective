@@ -7,7 +7,7 @@ from app.database import SessionLocal
 from app.services.game_service import create_game, start_game
 from app.services.player_service import join_game, get_players
 from app.services.statement_service import get_statements, get_results
-from app.services.guess_service import submit_guess
+from app.services.guess_service import submit_guess,get_guess_status
 from app.schemas import JoinGameRequest, SubmitGuessRequest
 
 app = FastAPI()
@@ -97,6 +97,7 @@ def get_statement_endpoint(game_id: int, db: Session = Depends(get_db)):
 def get_results_endpoint(game_id: int, db: Session = Depends(get_db)):
     return get_results(db=db, game_id=game_id)
 
+# ENDPOINT FOR SUBMIT A GUESS
 
 @app.post("/games/{game_id}/guesses")
 def submit_guess_endpoint(
@@ -104,3 +105,12 @@ def submit_guess_endpoint(
 ):
     result = submit_guess(db=db, game_id=game_id, payload=payload)
     return result
+
+# ENDPOINT FOR GET GUESS STATUS
+
+@app.get("/games/{game_id}/guesses/status")
+def check_guesses_endpoint(
+    game_id: int ,statement_id: int, db: Session = Depends(get_db)
+):
+ result=get_guess_status(db=db,game_id=game_id,statement_id=statement_id)
+ return result
