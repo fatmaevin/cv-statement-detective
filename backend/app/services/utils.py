@@ -9,7 +9,8 @@ def game_check(db, game_id: int):
         raise HTTPException(status_code=404, detail="Game not found")
     return game
 
-def statement_check(db,statement_id:int,game_id:int):
+
+def statement_check(db, statement_id: int, game_id: int):
     # statement fetch
     statement = db.query(Statement).filter(Statement.id == statement_id).first()
 
