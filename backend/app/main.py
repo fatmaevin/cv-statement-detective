@@ -7,6 +7,8 @@ from app.services.game_service import create_game, start_game
 from app.services.player_service import join_game, get_players
 from app.services.statement_service import get_statements, get_results
 from app.schemas import JoinGameRequest, GameCreateRequest
+from app.services.guess_service import submit_guess
+from app.schemas import JoinGameRequest, SubmitGuessRequest
 
 app = FastAPI()
 
@@ -87,3 +89,11 @@ def get_statement_endpoint(game_id: int, db: Session = Depends(get_db)):
 @app.get("/games/{game_id}/results")
 def get_results_endpoint(game_id: int, db: Session = Depends(get_db)):
     return get_results(db=db, game_id=game_id)
+
+
+@app.post("/games/{game_id}/guesses")
+def submit_guess_endpoint(
+    game_id: int, payload: SubmitGuessRequest, db: Session = Depends(get_db)
+):
+    result = submit_guess(db=db, game_id=game_id, payload=payload)
+    return result
