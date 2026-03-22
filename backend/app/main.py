@@ -1,5 +1,4 @@
-from fastapi import FastAPI, Depends
-from pydantic import BaseModel
+from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 
@@ -7,6 +6,7 @@ from app.database import SessionLocal
 from app.services.game_service import create_game, start_game
 from app.services.player_service import join_game, get_players
 from app.services.statement_service import get_statements, get_results
+from app.schemas import JoinGameRequest, GameCreateRequest
 from app.services.guess_service import submit_guess
 from app.schemas import JoinGameRequest, SubmitGuessRequest
 
@@ -24,13 +24,6 @@ def get_db():
 @app.get("/")
 def read_root():
     return {"message": "Hello World"}
-
-
-# PYDANTIC MODEL FOR GAME CREATION REQUEST, THIS DEFINES THE EXPECTED STRUCTURE OF THE REQUEST BODY FOR CREATING A NEW GAME
-class GameCreateRequest(BaseModel):
-    host_name: str
-    host_id: int
-    passcode: str
 
 
 # ENDPOINT TO CREATE A NEW GAME
