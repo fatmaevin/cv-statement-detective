@@ -37,4 +37,16 @@ def get_results(db: Session, game_id: int):
     )
     if not statements:
         raise HTTPException(status_code=404, detail="No result found")
-    return statements
+
+    result = []
+
+    for s in statements:
+        result.append(
+            {
+                "statement_id": s.id,
+                "statement": s.statement,
+                "score": s.score,
+            }
+        )
+
+    return result

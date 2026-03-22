@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
 from app.services.game_service import create_game, start_game
-from app.services.player_service import join_game, get_player
+from app.services.player_service import join_game, get_players
 from app.services.statement_service import get_statements, get_results
 from app.schemas import JoinGameRequest
 
@@ -78,11 +78,9 @@ def join_game_endpoint(
     return {"player_id": player.id, "game_id": player.game_id, "name": player.name}
 
 
-@app.get("/games/{game_id}/players/{player_id}")
-def get_player_endpoint(game_id: int, player_id: int, db: Session = Depends(get_db)):
-    player = get_player(db=db, game_id=game_id, player_id=player_id)
-
-    return {"player_id": player.id, "game_id": player.game_id, "name": player.name}
+@app.get("/games/{game_id}/players")
+def get_players_endpoint(game_id: int, db: Session = Depends(get_db)):
+    return get_players(db=db, game_id=game_id)
 
 
 # ENDPOINT FOR STATEMENTS
@@ -96,14 +94,4 @@ def get_statement_endpoint(game_id: int, db: Session = Depends(get_db)):
 
 @app.get("/games/{game_id}/results")
 def get_results_endpoint(game_id: int, db: Session = Depends(get_db)):
-    statements = get_results(db=db, game_id=game_id)
-    result = []
-    for s in statements:
-        statement_data = {
-            "statement_id": s.id,
-            "statement": s.statement,
-            "score": s.score,
-        }
-
-        result.append(statement_data)
-    return result    
+    return get_results(db=db, game_id=game_id)
