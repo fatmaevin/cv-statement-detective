@@ -1,5 +1,5 @@
 from app.services.utils import game_check, statement_check
-from app.models import Guess
+from app.models import Guess, Statement
 from fastapi import HTTPException
 from app.services.player_service import get_players
 
@@ -67,4 +67,41 @@ def get_guess_status(db, game_id: int, statement_id: int):
         "submitted_guesses": submitted_guesses,
         "pending_guesses": pending_guesses,
         "is_complete": is_complete,
+    }
+
+
+def get_game_status(db, game_id: int):
+    statements = db.query(Statement).filter(Statement.game_id == game_id).all()
+    if not statements:
+     return {
+        "game_id": game_id,
+        "total_statements": 0,
+        "all_statements_shown": False,
+        "all_statements_completed": False,
+        "is_game_completed": False,
+    }
+
+    all_statements_shown = True
+    for s in statements:
+        if not s.has_been_shown:
+            all_statements_shown = False
+            break
+
+    all_statements_completed = True
+    for s in statements:
+        status = get_guess_status(db, game_id, s.id)
+
+        if not status["is_complete"]:
+            all_statements_completed = False
+            break
+
+    game_is_completed = all_statements_shown and all_statements_completed
+
+    
+    return {
+        "game_id": game_id,
+        "total_statements": len(statements),
+        "all_statements_shown": all_statements_shown,
+        "all_statements_completed": all_statements_completed,
+        "is_game_completed": game_is_completed,
     }
