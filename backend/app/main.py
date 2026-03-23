@@ -7,7 +7,7 @@ from app.services.game_service import create_game, start_game
 from app.services.player_service import join_game, get_players
 from app.services.statement_service import get_statements, get_results
 from app.services.guess_service import submit_guess, get_guess_status
-from app.schemas import JoinGameRequest, GameCreateRequestt, SubmitGuessRequest
+from app.schemas import JoinGameRequest, GameCreateRequest, SubmitGuessRequest
 
 
 app = FastAPI()
