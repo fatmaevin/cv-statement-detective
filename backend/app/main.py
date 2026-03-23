@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from fastapi.middleware.cors import CORSMiddleware
 
 
 from app.database import SessionLocal
@@ -10,6 +9,7 @@ from app.services.player_service import join_game, get_players
 from app.services.statement_service import get_statements, get_results
 from app.services.guess_service import submit_guess
 from app.schemas import JoinGameRequest, SubmitGuessRequest
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
