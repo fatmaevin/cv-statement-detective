@@ -8,9 +8,20 @@ from app.services.player_service import join_game, get_players
 from app.services.statement_service import get_statements, get_results
 from app.services.guess_service import submit_guess, get_guess_status,get_game_status
 from app.schemas import JoinGameRequest, GameCreateRequest, SubmitGuessRequest
+from fastapi.middleware.cors import CORSMiddleware
+
 
 
 app = FastAPI()
+
+# CORS configuration to allow requests from the frontend (running on localhost:5173)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 def get_db():
