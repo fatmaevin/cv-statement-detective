@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+from fastapi.middleware.cors import CORSMiddleware
 
 
 from app.database import SessionLocal
@@ -11,6 +12,18 @@ from app.services.guess_service import submit_guess
 from app.schemas import JoinGameRequest, SubmitGuessRequest
 
 app = FastAPI()
+
+# CORS configuration to allow requests from the frontend (running on localhost:5173)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://127.0.0.1:5500",
+        "http://localhost:5500",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 def get_db():
