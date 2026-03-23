@@ -9,19 +9,15 @@ def create_game(db: Session, host_name: str, host_id: int, passcode: str) -> Gam
     new_game = Game(
         host_name=host_name,
         host_id=host_id,
-        passcode=passcode,
-        game_link="",
-        status="waiting",
-        created_at=datetime.utcnow().isoformat(),
+        passcode=passcode
     )
 
-    #
     db.add(new_game)
-    db.commit()
-    db.refresh(new_game)
 
-    # Update the game_link with the generated game ID
-    new_game.game_link = f"/games/{new_game.id}"
+    # generate link after ID exists
+    timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S") # Add timestamp to ensure uniqueness
+    new_game.game_link = f"/games/{host_id}-{timestamp}" # Use host_id and timestamp to create a unique game link
+
     db.commit()
     db.refresh(new_game)
 
