@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.models.game import Game
 
+
 # SERVICE FUNCTION TO CREATE A NEW GAME
 def create_game(db: Session, host_name: str, host_id: int, passcode: str) -> Game:
     new_game = Game(
@@ -30,7 +31,9 @@ def start_game(db: Session, game_id: int) -> Game | None:
     if not game:
         return None
 
-    if game.status == "in_progress": # If the game is already in progress, we can just return it without changing the status
+    if (
+        game.status == "in_progress"
+    ):  # If the game is already in progress, we can just return it without changing the status
         return game
 
     game.status = "in_progress"
