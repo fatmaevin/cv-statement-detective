@@ -1,5 +1,4 @@
-from fastapi import FastAPI, Depends
-from pydantic import BaseModel
+from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 
@@ -7,9 +6,11 @@ from app.database import SessionLocal
 from app.services.game_service import create_game, start_game
 from app.services.player_service import join_game, get_players
 from app.services.statement_service import get_statements, get_results
-from app.services.guess_service import submit_guess
-from app.schemas import JoinGameRequest, SubmitGuessRequest
+from app.services.guess_service import submit_guess, get_guess_status,get_game_status
+from app.schemas import JoinGameRequest, GameCreateRequest, SubmitGuessRequest
 from fastapi.middleware.cors import CORSMiddleware
+
+
 
 app = FastAPI()
 
@@ -34,13 +35,6 @@ def get_db():
 @app.get("/")
 def read_root():
     return {"message": "Hello World"}
-
-
-# PYDANTIC MODEL FOR GAME CREATION REQUEST, THIS DEFINES THE EXPECTED STRUCTURE OF THE REQUEST BODY FOR CREATING A NEW GAME
-class GameCreateRequest(BaseModel):
-    host_name: str
-    host_id: int
-    passcode: str
 
 
 # ENDPOINT TO CREATE A NEW GAME
@@ -108,9 +102,29 @@ def get_results_endpoint(game_id: int, db: Session = Depends(get_db)):
     return get_results(db=db, game_id=game_id)
 
 
+# ENDPOINT FOR SUBMIT A GUESS
+
+
 @app.post("/games/{game_id}/guesses")
 def submit_guess_endpoint(
     game_id: int, payload: SubmitGuessRequest, db: Session = Depends(get_db)
 ):
     result = submit_guess(db=db, game_id=game_id, payload=payload)
     return result
+
+
+# ENDPOINT FOR GET GUESS STATUS
+
+
+@app.get("/games/{game_id}/guesses/status")
+def check_guesses_endpoint(
+    game_id: int, statement_id: int, db: Session = Depends(get_db)
+):
+    result = get_guess_status(db=db, game_id=game_id, statement_id=statement_id)
+    return result
+
+# Debug endpoint for internal testing of game status logic.
+# Should be removed or disabled in production environment.
+@app.get("/debug/game-status/{game_id}")
+def debug_game_status(game_id: int, db: Session = Depends(get_db)):
+    return get_game_status(db, game_id)

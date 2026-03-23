@@ -1,24 +1,15 @@
-from app.services.utils import game_check
-from app.models import Statement, Guess
+from app.services.utils import game_check, statement_check
+from app.models import Guess, Statement
 from fastapi import HTTPException
+from app.services.player_service import get_players
 
 
 def submit_guess(db, game_id: int, payload):
     # game validation
     game = game_check(db, game_id)
 
-    # statement fetch
-    statement = db.query(Statement).filter(Statement.id == payload.statement_id).first()
-
     # statement validation
-    # check statement exists
-    if not statement:
-        raise HTTPException(status_code=404, detail="Statement not found")
-    # check statement belong to game
-    if statement.game_id != game_id:
-        raise HTTPException(
-            status_code=400, detail="Statement does not belong to this game"
-        )
+    statement = statement_check(db, payload.statement_id, game_id)
 
     # duplicate guess check
     existing_guess = (
@@ -48,3 +39,69 @@ def submit_guess(db, game_id: int, payload):
     db.refresh(new_guess)
 
     return {"message": "Guess submitted successfully", "guess_id": new_guess.id}
+
+
+def get_guess_status(db, game_id: int, statement_id: int):
+
+    # game validation
+    game = game_check(db, game_id)
+
+    # statement validation
+    statement = statement_check(db, statement_id, game_id)
+
+    players = get_players(db=db, game_id=game_id)
+    guesses = (
+        db.query(Guess)
+        .filter(Guess.game_id == game_id, Guess.statement_id == statement_id)
+        .all()
+    )
+    submitted_guesses = len(guesses)
+    total_players = len(players)
+    pending_guesses = max(total_players - submitted_guesses, 0)
+    is_complete = submitted_guesses == total_players
+
+    return {
+        "game_id": game_id,
+        "statement_id": statement_id,
+        "total_players": total_players,
+        "submitted_guesses": submitted_guesses,
+        "pending_guesses": pending_guesses,
+        "is_complete": is_complete,
+    }
+
+
+def get_game_status(db, game_id: int):
+    statements = db.query(Statement).filter(Statement.game_id == game_id).all()
+    if not statements:
+     return {
+        "game_id": game_id,
+        "total_statements": 0,
+        "all_statements_shown": False,
+        "all_statements_completed": False,
+        "is_game_completed": False,
+    }
+
+    all_statements_shown = True
+    for s in statements:
+        if not s.has_been_shown:
+            all_statements_shown = False
+            break
+
+    all_statements_completed = True
+    for s in statements:
+        status = get_guess_status(db, game_id, s.id)
+
+        if not status["is_complete"]:
+            all_statements_completed = False
+            break
+
+    game_is_completed = all_statements_shown and all_statements_completed
+
+    
+    return {
+        "game_id": game_id,
+        "total_statements": len(statements),
+        "all_statements_shown": all_statements_shown,
+        "all_statements_completed": all_statements_completed,
+        "is_game_completed": game_is_completed,
+    }
