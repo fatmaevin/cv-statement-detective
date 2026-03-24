@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     event.preventDefault();
 
     const params = new URLSearchParams(window.location.search);
-    const gameId = params.get("gameId");
+    const gameId = params.get("game_id");
     const urlPasscode = params.get("passcode");
 
     if (!gameId) {
