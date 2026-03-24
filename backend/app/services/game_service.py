@@ -7,12 +7,16 @@ from app.models.game import Game
 # SERVICE FUNCTION TO CREATE A NEW GAME
 from datetime import datetime
 from sqlalchemy.orm import Session
+import random
 
 from app.models.game import Game
 
 
-def create_game(db: Session, host_name: str, host_id: int, passcode: str) -> Game:
+
+
+def create_game(db: Session, host_name: str, passcode: str) -> Game:
     try:
+        host_id = random.randint(1000, 9999)
         new_game = Game(
             host_name=host_name,
             host_id=host_id,
@@ -25,7 +29,7 @@ def create_game(db: Session, host_name: str, host_id: int, passcode: str) -> Gam
         db.refresh(new_game)
 
         timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S")
-        new_game.game_link = f"/games/{host_id}-{timestamp}"
+        new_game.game_link = f"/games/{host_id}-{passcode}-{timestamp}"
 
         db.commit()
         db.refresh(new_game)

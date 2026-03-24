@@ -43,12 +43,12 @@ def create_game_endpoint(payload: GameCreateRequest, db: Session = Depends(get_d
     game = create_game(
         db=db,
         host_name=payload.host_name,
-        host_id=payload.host_id,
         passcode=payload.passcode,
     )
 
     return {
         "game_id": game.id,
+        "host_id": game.host_id,
         "status": game.status,
         "game_link": game.game_link,
         "passcode": game.passcode,
