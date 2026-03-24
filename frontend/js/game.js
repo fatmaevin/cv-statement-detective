@@ -37,4 +37,40 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   loadStatement();
+
+  // ---------- Load Players ----------
+  async function loadPlayers() {
+    const response = await fetch(
+      `http://localhost:8000/games/${gameId}/players`,
+    );
+    const players = await response.json();
+    console.log("players:", players);
+    renderPlayers(players);
+  }
+
+  loadPlayers();
+
+  // ---------- Render Players ----------
+  function renderPlayers(players) {
+    const container = document.getElementById("players-options");
+    container.innerHTML = "";
+
+    players.forEach((player) => {
+      const label = document.createElement("label");
+      label.className = "player-option";
+
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = "player";
+      input.value = player.player_id;
+
+      const span = document.createElement("span");
+      span.textContent = player.name;
+
+      label.appendChild(input);
+      label.appendChild(span);
+      container.appendChild(label);
+    });
+  }
+
 });
