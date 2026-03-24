@@ -77,7 +77,7 @@ def join_game_endpoint(
 ):
 
     player = join_game(
-        db=db, name=payload.name, game_id=game_id, statement=payload.statement
+        db=db, name=payload.name, game_id=game_id, statement=payload.statement,passcode=payload.passcode
     )
 
     return {"player_id": player.id, "game_id": player.game_id, "name": player.name}
