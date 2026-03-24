@@ -73,4 +73,18 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+   // ---------- Enable Submit ----------
+
+  document.getElementById("players-options").addEventListener("change", (e) => {
+    if (e.target.name === "player") {
+      submitButton.disabled = false;
+    }
+  });
+
+  // ---------- Get Selected player----------
+  function getSelectedPlayer() {
+    const selected = document.querySelector('input[name="player"]:checked');
+    return selected ? selected.value : null;
+  }
+
 });
