@@ -7,7 +7,6 @@ class JoinGameRequest(BaseModel):
 
 class GameCreateRequest(BaseModel):
     host_name: str
-    host_id: int
     passcode: str
 
 class SubmitGuessRequest(BaseModel):

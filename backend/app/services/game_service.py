@@ -5,24 +5,40 @@ from app.models.game import Game
 
 
 # SERVICE FUNCTION TO CREATE A NEW GAME
-def create_game(db: Session, host_name: str, host_id: int, passcode: str) -> Game:
-    new_game = Game(
-        host_name=host_name,
-        host_id=host_id,
-        passcode=passcode
-    )
+from datetime import datetime
+from sqlalchemy.orm import Session
+import random
 
-    db.add(new_game)
+from app.models.game import Game
 
-    # generate link after ID exists
-    timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S") # Add timestamp to ensure uniqueness
-    new_game.game_link = f"/games/{host_id}-{timestamp}" # Use host_id and timestamp to create a unique game link
 
-    db.commit()
-    db.refresh(new_game)
 
-    return new_game
 
+def create_game(db: Session, host_name: str, passcode: str) -> Game:
+    try:
+        host_id = random.randint(1000, 9999)
+        new_game = Game(
+            host_name=host_name,
+            host_id=host_id,
+            passcode=passcode,
+            created_at=datetime.utcnow().isoformat()
+        )
+
+        db.add(new_game)
+        db.commit()
+        db.refresh(new_game)
+
+        timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+        new_game.game_link = f"/games/{host_id}-{passcode}-{timestamp}"
+
+        db.commit()
+        db.refresh(new_game)
+
+        return new_game
+
+    except Exception:
+        db.rollback()
+        raise
 
 # SERVICE FUNCTION TO START A GAME
 def start_game(db: Session, game_id: int) -> Game | None:
