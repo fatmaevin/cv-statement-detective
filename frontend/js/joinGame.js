@@ -44,13 +44,14 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
       if (!response.ok) {
-        alert("Something went wrong");
+        const errData = await response.json();
+        alert(errData.detail || "Something went wrong");
         return;
       }
 
       const data = await response.json();
 
-      window.location.href = `/pages/waiting-room.html?gameId=${data.game_id}&playerId=${data.player_id}`;
+      window.location.href = `/pages/waiting-room.html?game_id=${data.game_id}&playerId=${data.player_id}`;
     } catch (error) {
       console.error("Error:", error);
       alert("Network error");
