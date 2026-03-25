@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   //-----------Add polling-------------
   // Polling mechanism to periodically check if all players have submitted guesses
   let pollingInterval = null;
+ 
   function startPolling() {
     if (pollingInterval) return;
     pollingInterval = setInterval(async () => {
@@ -28,7 +29,15 @@ document.addEventListener("DOMContentLoaded", () => {
         // Reset flag for next statement
         hasSubmittedGuess = false;
       }
-    }, 3000);
+    }, 10000);
+  }
+
+  function stopPolling(){
+    if(pollingInterval) {
+        clearInterval(pollingInterval);
+        pollingInterval=null;
+        console.log("polling stopped");
+    }
   }
 
   //-----------Load Statement---------
@@ -197,6 +206,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!data) {
           console.log("Game finished");
+          stopPolling();
           const statementText = document.getElementById("statement-text");
           statementText.textContent = "Game finished!";
           submitButton.disabled = true;
