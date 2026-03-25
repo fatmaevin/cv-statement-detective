@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("game id=", gameId);
 
   const submitButton = document.getElementById("submit-guess-btn");
+  const waitingMessage = document.getElementById("waiting-message");
 
   // Stops the game from running multiple times at the same time
   let isProcessingGameFlow = false;
@@ -23,13 +24,13 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!status) return;
 
       console.log("polling:", status);
-      if (status.is_complete && hasSubmittedGuess) {
+      if (status.is_complete ) {
         await handleGameFlow();
         
         // Reset flag for next statement
         hasSubmittedGuess = false;
       }
-    }, 10000);
+    }, 4000);
   }
 
   function stopPolling(){
@@ -143,6 +144,20 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("selectedPlayer:", selectedPlayerId);
     submitButton.disabled = true;
 
+    // Show waiting message
+    waitingMessage.style.display = "block";
+    const status=await checkGuessStatus();
+    if(status){
+    waitingMessage.textContent = `Waiting for ${status.pending_guesses} players...`;
+    }else{
+        waitingMessage.textContent = `Waiting for other players...`;
+    }
+
+    // Disable all player inputs
+    document.querySelectorAll('input[name="player"]').forEach((input) => {
+    input.disabled = true;
+    });
+    
     // Save the statement ID when submitting to prevent timing issues with polling
     const currentStatementId = window.currentStatementId;
 
@@ -167,6 +182,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // Handle backend errors
     if (!response.ok) {
       console.log("submit failed", result);
+      hasSubmittedGuess=false;
+      waitingMessage.style.display="none";
+
+      document.querySelectorAll('input[name="player"]').forEach((input) => {
+        input.disabled = false;
+      });
+
+      submitButton.disabled=false;
+
       return;
     }
     console.log("submit result", result);
@@ -204,11 +228,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const data = await loadStatement();
 
+        hasSubmittedGuess=false;
+
+        // Hide waiting message for next round
+        waitingMessage.style.display = "none";
+
+        // Re-enable inputs for next round
+        document.querySelectorAll('input[name="player"]').forEach((input) => {
+          input.disabled = false;
+        });
+
         if (!data) {
           console.log("Game finished");
           stopPolling();
           const statementText = document.getElementById("statement-text");
           statementText.textContent = "Game finished!";
+          waitingMessage.textContent = "🎉 Game finished!";
+          waitingMessage.style.display = "block";
           submitButton.disabled = true;
           document.querySelectorAll('input[name="player"]').forEach((input) => {
             input.checked = false;
