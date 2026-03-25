@@ -78,9 +78,9 @@ form.addEventListener("submit", async (e) => {
     localStorage.setItem("host_id", data.host_id); 
 
 
-    async function loadPlayers(gameId) {
+    async function loadPlayers(game_id) {
         try {
-          const response = await fetch(`http://127.0.0.1:8000/games/${gameId}/players`);
+          const response = await fetch(`http://127.0.0.1:8000/games/${game_id}/players`);
       
           if (!response.ok) {
             throw new Error("Failed to fetch players");
@@ -146,9 +146,9 @@ form.addEventListener("submit", async (e) => {
 
     // Load players
     setInterval(() => {
-        const gameId = localStorage.getItem("game_id");
-        if (gameId) {
-          loadPlayers(gameId);
+        const game_id = localStorage.getItem("game_id");
+        if (game_id) {
+          loadPlayers(game_id);
         }
       }, 3000); // every 3 seconds
 
