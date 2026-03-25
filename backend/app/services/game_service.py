@@ -29,7 +29,7 @@ def create_game(db: Session, host_name: str, passcode: str) -> Game:
         db.refresh(new_game)
 
         timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S")
-        new_game.game_link = f"/games/{host_id}-{passcode}-{timestamp}"
+        new_game.game_link = f"http://localhost:5173/pages/join-game?host_id={host_id}&game_id={new_game.id}&passcode={passcode}&{timestamp}"
 
         db.commit()
         db.refresh(new_game)
