@@ -57,3 +57,17 @@ def start_game(db: Session, game_id: int) -> Game | None:
     db.refresh(game)
 
     return game
+
+# SERVICE FUNCTION TO finish A GAME
+def finish_game(db:Session,game_id:int)->Game | None:
+  game=db.query(Game).filter(Game.id==game_id).first()
+
+  if not game:
+      return None
+  
+  game.status="finished"
+  game.ended_at=datetime.utcnow().isoformat()
+
+  db.commit()
+  db.refresh(game)
+  return game

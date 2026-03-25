@@ -268,6 +268,10 @@ document.addEventListener("DOMContentLoaded", () => {
           console.log("Game finished");
           stopPolling();
           setWaitingMessage("🎉 Game finished!",{ show:true });
+
+          await fetch(`http://localhost:8000/games/${gameId}/finish`, {
+            method: "PATCH",
+          });
          
           setSubmitEnabled(false);
           
@@ -277,7 +281,7 @@ document.addEventListener("DOMContentLoaded", () => {
           //---------redirect to next page---------------
           setTimeout(()=>{
             window.location.href = `/pages/waiting-result?{game_id=${gameId}}`;
-          },3000);
+          },15000);
           return;
         }
         setSubmitEnabled(false);
