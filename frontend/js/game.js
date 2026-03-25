@@ -272,6 +272,11 @@ document.addEventListener("DOMContentLoaded", () => {
           
           disablePlayers();
           resetPlayersSelection();
+
+          //---------redirect to next page---------------
+          setTimeout(()=>{
+            window.location.href = `/pages/waiting-result?{game_id=${gameId}}`;
+          },3000);
           return;
         }
         setSubmitEnabled(false);
