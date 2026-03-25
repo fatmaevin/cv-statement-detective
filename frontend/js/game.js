@@ -4,6 +4,33 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("game id=", gameId);
 
   const submitButton = document.getElementById("submit-guess-btn");
+
+  // Stops the game from running multiple times at the same time
+  let isProcessingGameFlow = false;
+
+  // Checks if the user has already made a guess for the current statement
+  // Used to make sure the game doesn’t move to the next statement before the user acts
+  let hasSubmittedGuess = false;
+
+  //-----------Add polling-------------
+  // Polling mechanism to periodically check if all players have submitted guesses
+  let pollingInterval = null;
+  function startPolling() {
+    if (pollingInterval) return;
+    pollingInterval = setInterval(async () => {
+      const status = await checkGuessStatus();
+      if (!status) return;
+
+      console.log("polling:", status);
+      if (status.is_complete && hasSubmittedGuess) {
+        await handleGameFlow();
+        
+        // Reset flag for next statement
+        hasSubmittedGuess = false;
+      }
+    }, 3000);
+  }
+
   //-----------Load Statement---------
   async function loadStatement() {
     const response = await fetch(
@@ -37,6 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   loadStatement();
+  startPolling();
 
   // ---------- Load Players ----------
   async function loadPlayers() {
@@ -73,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-   // ---------- Enable Submit ----------
+  // ---------- Enable Submit ----------
 
   document.getElementById("players-options").addEventListener("change", (e) => {
     if (e.target.name === "player") {
@@ -100,12 +128,18 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    //Mark that current player has submitted a guess
+    hasSubmittedGuess = true;
+
     console.log("selectedPlayer:", selectedPlayerId);
     submitButton.disabled = true;
 
+    // Save the statement ID when submitting to prevent timing issues with polling
+    const currentStatementId = window.currentStatementId;
+
     const payload = {
-      player_id: 5,
-      statement_id: window.currentStatementId,
+      player_id: 1, //hardcode !! must change
+      statement_id: currentStatementId,
       guessed_player_id: Number(selectedPlayerId),
     };
 
@@ -121,11 +155,16 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     const result = await response.json();
+    // Handle backend errors
+    if (!response.ok) {
+      console.log("submit failed", result);
+      return;
+    }
     console.log("submit result", result);
     await handleGameFlow();
   });
 
-   // ---------- Check statement status ----------
+  // ---------- Check statement status ----------
   async function checkGuessStatus() {
     if (!window.currentStatementId) return null;
     const response = await fetch(
@@ -141,36 +180,45 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   //--------handle game flow---------------------------
   window.handleGameFlow = async function () {
-    const status = await checkGuessStatus();
-    if (!status) return;
+    // Prevent concurrent executions
+    if (isProcessingGameFlow) return;
+    isProcessingGameFlow = true;
 
-    console.log("guess status:", status);
+    try {
+      const status = await checkGuessStatus();
+      if (!status) return;
 
-    if (status.is_complete) {
-      console.log("statement finished, loading next ...");
+      console.log("guess status:", status);
 
-      const data = await loadStatement();
+      if (status.is_complete) {
+        console.log("statement finished, loading next ...");
 
-      if (!data) {
-        console.log("Game finished");
-        const statementText = document.getElementById("statement-text");
-        statementText.textContent = "Game finished!";
+        const data = await loadStatement();
+
+        if (!data) {
+          console.log("Game finished");
+          const statementText = document.getElementById("statement-text");
+          statementText.textContent = "Game finished!";
+          submitButton.disabled = true;
+          document.querySelectorAll('input[name="player"]').forEach((input) => {
+            input.checked = false;
+            input.disabled = true;
+          });
+          return;
+        }
         submitButton.disabled = true;
+
+        //reset UI
         document.querySelectorAll('input[name="player"]').forEach((input) => {
           input.checked = false;
-          input.disabled = true;
         });
-        return;
+
+        return data;
       }
-      submitButton.disabled = true;
 
-      //reset UI
-      document.querySelectorAll('input[name="player"]').forEach((input) => {
-        input.checked = false;
-      });
-
-      return data;
+      // Release lock after processing completes
+    } finally {
+      isProcessingGameFlow = false;
     }
   };
-
 });
