@@ -179,7 +179,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Show waiting message
     const status=await checkGuessStatus();
     if(status){
-        setWaitingMessage(`Waiting for ${status.pending_guesses} players...`);
+        const remaining = Math.max(status.pending_guesses - 1, 0);
+        setWaitingMessage(`Waiting for ${remaining} player${remaining === 1 ? '' :s}...`);
     }else{
         setWaitingMessage("Waiting for other players...");
     }
@@ -281,7 +282,7 @@ document.addEventListener("DOMContentLoaded", () => {
           //---------redirect to next page---------------
           setTimeout(()=>{
             window.location.href = `/pages/waiting-result?{game_id=${gameId}}`;
-          },15000);
+          },10000);
           return;
         }
         setSubmitEnabled(false);
