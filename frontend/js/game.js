@@ -3,7 +3,75 @@ document.addEventListener("DOMContentLoaded", () => {
   const gameId = urlParams.get("game_id");
   console.log("game id=", gameId);
 
+  //--------add helper functions--------------------------
+  function getPlayerInputs() {
+    return document.querySelectorAll('input[name="player"]');
+  }
+
+  function disablePlayers() {
+    getPlayerInputs().forEach((input) => (input.disabled = true));
+  }
+
+  function enablePlayers() {
+    getPlayerInputs().forEach((input) => (input.disabled = false));
+  }
+
+  function resetPlayersSelection() {
+    getPlayerInputs().forEach((input) => (input.checked = false));
+  }
+
+  function setWaitingMessage(text = "", { show = true } = {}) {
+    const el = document.getElementById("waiting-message");
+
+    el.textContent = text;
+
+    el.style.display = show ? "block" : "none";
+  }
+
+  function setSubmitEnabled(enabled) {
+    const submitButton = document.getElementById("submit-guess-btn");
+    submitButton.disabled = !enabled;
+  }
+
+  //---------------------------------------------------------------------
   const submitButton = document.getElementById("submit-guess-btn");
+  const waitingMessage = document.getElementById("waiting-message");
+
+  // Stops the game from running multiple times at the same time
+  let isProcessingGameFlow = false;
+
+  // Checks if the user has already made a guess for the current statement
+  // Used to make sure the game doesn’t move to the next statement before the user acts
+  let hasSubmittedGuess = false;
+
+  //-----------Add polling-------------
+  // Polling mechanism to periodically check if all players have submitted guesses
+  let pollingInterval = null;
+ 
+  function startPolling() {
+    if (pollingInterval) return;
+    pollingInterval = setInterval(async () => {
+      const status = await checkGuessStatus();
+      if (!status) return;
+
+      console.log("polling:", status);
+      if (status.is_complete ) {
+        await handleGameFlow();
+        
+        // Reset flag for next statement
+        hasSubmittedGuess = false;
+      }
+    }, 4000);
+  }
+
+  function stopPolling(){
+    if(pollingInterval) {
+        clearInterval(pollingInterval);
+        pollingInterval=null;
+        console.log("polling stopped");
+    }
+  }
+
   //-----------Load Statement---------
   async function loadStatement() {
     const response = await fetch(
@@ -19,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return null;
     }
 
-    submitButton.disabled = true;
+    setSubmitEnabled(false);
     renderStatement(data);
     return data;
   }
@@ -37,6 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   loadStatement();
+  startPolling();
 
   // ---------- Load Players ----------
   async function loadPlayers() {
@@ -73,11 +142,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-   // ---------- Enable Submit ----------
+  // ---------- Enable Submit ----------
 
   document.getElementById("players-options").addEventListener("change", (e) => {
     if (e.target.name === "player") {
-      submitButton.disabled = false;
+      setSubmitEnabled(true);
     }
   });
 
@@ -100,12 +169,31 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    //Mark that current player has submitted a guess
+    hasSubmittedGuess = true;
+
     console.log("selectedPlayer:", selectedPlayerId);
-    submitButton.disabled = true;
+    setSubmitEnabled(false);
+    
+
+    // Show waiting message
+    const status=await checkGuessStatus();
+    if(status){
+        setWaitingMessage(`Waiting for ${status.pending_guesses} players...`);
+    }else{
+        setWaitingMessage("Waiting for other players...");
+    }
+
+    // Disable all player inputs
+    disablePlayers();
+    
+    // Save the statement ID when submitting to prevent timing issues with polling
+    const currentStatementId = window.currentStatementId;
+    const playerId = Number(localStorage.getItem("player_id")) || 1;
 
     const payload = {
-      player_id: 5,
-      statement_id: window.currentStatementId,
+      player_id: playerId, 
+      statement_id: currentStatementId,
       guessed_player_id: Number(selectedPlayerId),
     };
 
@@ -121,11 +209,23 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     const result = await response.json();
+    // Handle backend errors
+    if (!response.ok) {
+      console.log("submit failed", result);
+      hasSubmittedGuess=false;
+      setWaitingMessage("",{ show : false });
+
+      enablePlayers();
+
+      setSubmitEnabled(true);
+
+      return;
+    }
     console.log("submit result", result);
     await handleGameFlow();
   });
 
-   // ---------- Check statement status ----------
+  // ---------- Check statement status ----------
   async function checkGuessStatus() {
     if (!window.currentStatementId) return null;
     const response = await fetch(
@@ -141,36 +241,57 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   //--------handle game flow---------------------------
   window.handleGameFlow = async function () {
-    const status = await checkGuessStatus();
-    if (!status) return;
+    // Prevent concurrent executions
+    if (isProcessingGameFlow) return;
+    isProcessingGameFlow = true;
 
-    console.log("guess status:", status);
+    try {
+      const status = await checkGuessStatus();
+      if (!status) return;
 
-    if (status.is_complete) {
-      console.log("statement finished, loading next ...");
+      console.log("guess status:", status);
 
-      const data = await loadStatement();
+      if (status.is_complete) {
+        console.log("statement finished, loading next ...");
 
-      if (!data) {
-        console.log("Game finished");
-        const statementText = document.getElementById("statement-text");
-        statementText.textContent = "Game finished!";
-        submitButton.disabled = true;
-        document.querySelectorAll('input[name="player"]').forEach((input) => {
-          input.checked = false;
-          input.disabled = true;
-        });
-        return;
+        const data = await loadStatement();
+
+        hasSubmittedGuess=false;
+
+        // Hide waiting message for next round
+        setWaitingMessage("", { show: false });
+
+        // Re-enable inputs for next round
+        enablePlayers();
+
+        if (!data) {
+          console.log("Game finished");
+          stopPolling();
+          setWaitingMessage("🎉 Game finished!",{ show:true });
+         
+          setSubmitEnabled(false);
+          
+          disablePlayers();
+          resetPlayersSelection();
+
+          //---------redirect to next page---------------
+          setTimeout(()=>{
+            window.location.href = `/pages/waiting-result?{game_id=${gameId}}`;
+          },3000);
+          return;
+        }
+        setSubmitEnabled(false);
+        
+
+        //reset UI
+        resetPlayersSelection();
+
+        return data;
       }
-      submitButton.disabled = true;
 
-      //reset UI
-      document.querySelectorAll('input[name="player"]').forEach((input) => {
-        input.checked = false;
-      });
-
-      return data;
+      // Release lock after processing completes
+    } finally {
+      isProcessingGameFlow = false;
     }
   };
-
 });
