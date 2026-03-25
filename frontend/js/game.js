@@ -189,9 +189,10 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Save the statement ID when submitting to prevent timing issues with polling
     const currentStatementId = window.currentStatementId;
+    const playerId = Number(localStorage.getItem("player_id")) || 1;
 
     const payload = {
-      player_id: 1, //hardcode !! must change
+      player_id: playerId, 
       statement_id: currentStatementId,
       guessed_player_id: Number(selectedPlayerId),
     };
