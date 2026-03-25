@@ -3,6 +3,37 @@ document.addEventListener("DOMContentLoaded", () => {
   const gameId = urlParams.get("game_id");
   console.log("game id=", gameId);
 
+  //--------add helper functions--------------------------
+  function getPlayerInputs() {
+    return document.querySelectorAll('input[name="player"]');
+  }
+
+  function disablePlayers() {
+    getPlayerInputs().forEach((input) => (input.disabled = true));
+  }
+
+  function enablePlayers() {
+    getPlayerInputs().forEach((input) => (input.disabled = false));
+  }
+
+  function resetPlayersSelection() {
+    getPlayerInputs().forEach((input) => (input.checked = false));
+  }
+
+  function setWaitingMessage(text = "", { show = true } = {}) {
+    const el = document.getElementById("waiting-message");
+
+    el.textContent = text;
+
+    el.style.display = show ? "block" : "none";
+  }
+
+  function setSubmitEnabled(enabled) {
+    const submitButton = document.getElementById("submit-guess-btn");
+    submitButton.disabled = !enabled;
+  }
+
+  //---------------------------------------------------------------------
   const submitButton = document.getElementById("submit-guess-btn");
   const waitingMessage = document.getElementById("waiting-message");
 
@@ -56,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return null;
     }
 
-    submitButton.disabled = true;
+    setSubmitEnabled(false);
     renderStatement(data);
     return data;
   }
@@ -115,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("players-options").addEventListener("change", (e) => {
     if (e.target.name === "player") {
-      submitButton.disabled = false;
+      setSubmitEnabled(true);
     }
   });
 
@@ -142,21 +173,19 @@ document.addEventListener("DOMContentLoaded", () => {
     hasSubmittedGuess = true;
 
     console.log("selectedPlayer:", selectedPlayerId);
-    submitButton.disabled = true;
+    setSubmitEnabled(false);
+    
 
     // Show waiting message
-    waitingMessage.style.display = "block";
     const status=await checkGuessStatus();
     if(status){
-    waitingMessage.textContent = `Waiting for ${status.pending_guesses} players...`;
+        setWaitingMessage(`Waiting for ${status.pending_guesses} players...`);
     }else{
-        waitingMessage.textContent = `Waiting for other players...`;
+        setWaitingMessage("Waiting for other players...");
     }
 
     // Disable all player inputs
-    document.querySelectorAll('input[name="player"]').forEach((input) => {
-    input.disabled = true;
-    });
+    disablePlayers();
     
     // Save the statement ID when submitting to prevent timing issues with polling
     const currentStatementId = window.currentStatementId;
@@ -183,13 +212,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!response.ok) {
       console.log("submit failed", result);
       hasSubmittedGuess=false;
-      waitingMessage.style.display="none";
+      setWaitingMessage("",{ show : false });
 
-      document.querySelectorAll('input[name="player"]').forEach((input) => {
-        input.disabled = false;
-      });
+      enablePlayers();
 
-      submitButton.disabled=false;
+      setSubmitEnabled(true);
 
       return;
     }
@@ -231,33 +258,27 @@ document.addEventListener("DOMContentLoaded", () => {
         hasSubmittedGuess=false;
 
         // Hide waiting message for next round
-        waitingMessage.style.display = "none";
+        setWaitingMessage("", { show: false });
 
         // Re-enable inputs for next round
-        document.querySelectorAll('input[name="player"]').forEach((input) => {
-          input.disabled = false;
-        });
+        enablePlayers();
 
         if (!data) {
           console.log("Game finished");
           stopPolling();
-          const statementText = document.getElementById("statement-text");
-          statementText.textContent = "Game finished!";
-          waitingMessage.textContent = "🎉 Game finished!";
-          waitingMessage.style.display = "block";
-          submitButton.disabled = true;
-          document.querySelectorAll('input[name="player"]').forEach((input) => {
-            input.checked = false;
-            input.disabled = true;
-          });
+          setWaitingMessage("🎉 Game finished!",{ show:true });
+         
+          setSubmitEnabled(false);
+          
+          disablePlayers();
+          resetPlayersSelection();
           return;
         }
-        submitButton.disabled = true;
+        setSubmitEnabled(false);
+        
 
         //reset UI
-        document.querySelectorAll('input[name="player"]').forEach((input) => {
-          input.checked = false;
-        });
+        resetPlayersSelection();
 
         return data;
       }
