@@ -3,9 +3,9 @@ from sqlalchemy.orm import Session
 
 
 from app.database import SessionLocal
-from app.services.game_service import create_game, start_game , finish_game
+from app.services.game_service import create_game, start_game , finish_game , advance_game_if_ready
 from app.services.player_service import join_game, get_players
-from app.services.statement_service import get_statements, get_results
+from app.services.statement_service import  get_results, get_current_statement
 from app.services.guess_service import submit_guess, get_guess_status,get_game_status
 from app.schemas import JoinGameRequest, GameCreateRequest, SubmitGuessRequest
 from fastapi.middleware.cors import CORSMiddleware
@@ -89,12 +89,17 @@ def get_players_endpoint(game_id: int, db: Session = Depends(get_db)):
 
 
 # ENDPOINT FOR STATEMENTS
-
-
 @app.get("/games/{game_id}/current-statement")
 def get_statement_endpoint(game_id: int, db: Session = Depends(get_db)):
-    statement = get_statements(db=db, game_id=game_id)
-    return {"statement_id": statement.id, "statement": statement.statement}
+
+    statement = get_current_statement(db, game_id)
+
+    return {
+        "statement_id": statement.id,
+        "statement": statement.statement
+    }
+
+
 
 
 @app.get("/games/{game_id}/results")
@@ -103,14 +108,22 @@ def get_results_endpoint(game_id: int, db: Session = Depends(get_db)):
 
 
 # ENDPOINT FOR SUBMIT A GUESS
-
-
 @app.post("/games/{game_id}/guesses")
-def submit_guess_endpoint(
-    game_id: int, payload: SubmitGuessRequest, db: Session = Depends(get_db)
-):
-    result = submit_guess(db=db, game_id=game_id, payload=payload)
-    return result
+def submit_guess_endpoint(game_id: int, payload: SubmitGuessRequest, db: Session = Depends(get_db)):
+
+    guess = submit_guess(db, game_id, payload)
+
+    engine_result = advance_game_if_ready(
+        db=db,
+        game_id=game_id,
+        statement_id=payload.statement_id
+    )
+
+    return {
+        "guess": guess,
+        "engine": engine_result
+    }
+
 
 
 # ENDPOINT FOR GET GUESS STATUS
