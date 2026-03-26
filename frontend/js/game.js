@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("game id=", gameId);
 
   //--------add helper functions--------------------------
+  // These helpers control player input state consistently across rounds
   function getPlayerInputs() {
     return document.querySelectorAll('input[name="player"]');
   }
@@ -49,15 +50,20 @@ document.addEventListener("DOMContentLoaded", () => {
     submitButton.disabled = !enabled;
   }
 
-  //-----------Add polling-------------
-  // Polling mechanism to periodically check if all players have submitted guesses
+  // -------- polling system ----------
+  // Polling is the core sync mechanism between all players.
+  // It ensures every client stays aligned with backend state.
   let pollingInterval = null;
 
   function startPolling() {
     if (pollingInterval) return;
+
     pollingInterval = setInterval(async () => {
       const status = await checkGuessStatus();
       if (!status) return;
+
+      // ---- GAME END DETECTION ----
+      // Backend is the single source of truth for game lifecycle
       if (status?.game_status === "finished") {
         console.log("Game finished!");
 
@@ -77,6 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
       updateWaitingMessage(status);
       const currentStatementId = window.currentStatementId;
 
+      // Round completion is detected via backend aggregation state
       if (status.is_complete) {
         console.log("Round complete detected from polling");
 
@@ -98,7 +105,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  //-----------Load Statement---------
+  // -------- statement loading ----------
+  // Statement is always fetched from backend (source of truth)
+
   async function loadStatement() {
     const response = await fetch(
       `http://localhost:8000/games/${gameId}/current-statement`,
@@ -127,13 +136,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     statementText.textContent = data.statement;
+
+    // Current statement id is critical for submit + polling sync
     window.currentStatementId = data.statement_id;
   }
 
   loadStatement();
   startPolling();
 
-  // ---------- Load Players ----------
+  // -------- players ----------
+  // Players are static per game session (loaded once)
+
   async function loadPlayers() {
     const response = await fetch(
       `http://localhost:8000/games/${gameId}/players`,
@@ -168,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ---------- Enable Submit ----------
+  // Enable submit when a player is selected
 
   document.getElementById("players-options").addEventListener("change", (e) => {
     if (e.target.name === "player") {
@@ -243,7 +256,9 @@ document.addEventListener("DOMContentLoaded", () => {
     setSubmitEnabled(false);
   });
 
-  // ---------- Check statement status ----------
+  // -------- status check ----------
+  // Polling uses this endpoint as the authoritative sync mechanism
+  
   async function checkGuessStatus() {
     if (!window.currentStatementId) return null;
     const response = await fetch(

@@ -2,9 +2,8 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 import random
 
-from app.models import Statement,Game
+from app.models import Statement, Game
 from app.services.utils import game_check
-
 
 
 def get_current_statement(db: Session, game_id: int):
@@ -27,9 +26,7 @@ def get_current_statement(db: Session, game_id: int):
 
     # always return current
     statement = (
-        db.query(Statement)
-        .filter(Statement.id == game.current_statement_id)
-        .first()
+        db.query(Statement).filter(Statement.id == game.current_statement_id).first()
     )
 
     return statement
@@ -59,14 +56,13 @@ def get_results(db: Session, game_id: int):
         )
 
     return result
+
+
 def get_next_statement(db: Session, game_id: int):
 
     statements = (
         db.query(Statement)
-        .filter(
-            Statement.game_id == game_id,
-            Statement.has_been_shown == False
-        )
+        .filter(Statement.game_id == game_id, Statement.has_been_shown == False)
         .all()
     )
 
