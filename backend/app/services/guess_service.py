@@ -1,5 +1,5 @@
 from app.services.utils import game_check, statement_check
-from app.models import Guess, Statement
+from app.models import Guess, Statement,Player
 from fastapi import HTTPException
 from app.services.player_service import get_players
 
@@ -42,7 +42,6 @@ def submit_guess(db, game_id: int, payload):
 
 
 def get_guess_status(db, game_id: int, statement_id: int):
-
     # game validation
     game = game_check(db, game_id)
 
@@ -55,6 +54,7 @@ def get_guess_status(db, game_id: int, statement_id: int):
         .filter(Guess.game_id == game_id, Guess.statement_id == statement_id)
         .all()
     )
+
     submitted_guesses = len(guesses)
     total_players = len(players)
     pending_guesses = max(total_players - submitted_guesses, 0)
@@ -63,10 +63,12 @@ def get_guess_status(db, game_id: int, statement_id: int):
     return {
         "game_id": game_id,
         "statement_id": statement_id,
+        "current_statement_id": game.current_statement_id,   
         "total_players": total_players,
         "submitted_guesses": submitted_guesses,
         "pending_guesses": pending_guesses,
         "is_complete": is_complete,
+        "game_status":game.status
     }
 
 
@@ -105,3 +107,13 @@ def get_game_status(db, game_id: int):
         "all_statements_completed": all_statements_completed,
         "is_game_completed": game_is_completed,
     }
+
+def is_round_complete(db , game_id: int, statement_id: int) -> bool:
+    total_players = db.query(Player).filter(Player.game_id == game_id).count()
+
+    guesses_count = db.query(Guess).filter(
+        Guess.game_id == game_id,
+        Guess.statement_id == statement_id
+    ).count()
+
+    return guesses_count >= total_players
