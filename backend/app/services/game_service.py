@@ -1,5 +1,6 @@
 from datetime import datetime
 from sqlalchemy.orm import Session
+from fastapi import HTTPException
 
 from app.models.game import Game
 
@@ -10,6 +11,8 @@ from sqlalchemy.orm import Session
 import random
 
 from app.models.game import Game
+from app.services.statement_service import get_next_statement
+from app.services.guess_service import is_round_complete
 
 
 
@@ -50,9 +53,23 @@ def start_game(db: Session, game_id: int) -> Game | None:
     if (
         game.status == "in_progress"
     ):  # If the game is already in progress, we can just return it without changing the status
+        if game.current_statement_id is None:
+         first_statement = get_next_statement(db, game_id)
+         if not first_statement:
+            raise HTTPException(status_code=400, detail="No statements available")
+         game.current_statement_id = first_statement.id
+         db.commit()
+         db.refresh(game)
         return game
 
     game.status = "in_progress"
+
+    first_statement = get_next_statement(db, game_id)
+
+    if not first_statement:
+        raise HTTPException(status_code=400, detail="No statements available")
+
+    game.current_statement_id = first_statement.id
     db.commit()
     db.refresh(game)
 
@@ -71,3 +88,38 @@ def finish_game(db:Session,game_id:int)->Game | None:
   db.commit()
   db.refresh(game)
   return game
+
+def advance_game_if_ready(db: Session, game_id: int, statement_id: int):
+
+    # 1. check if round is complete
+    if not is_round_complete(db, game_id, statement_id):
+        return None
+
+    # 2. lock game row 
+    game = db.query(Game).filter(Game.id == game_id).with_for_update().first()
+
+    # 3. prevent double execution (race safety)
+    if game.current_statement_id != statement_id:
+        return None
+
+    # 4. get next statement
+    next_statement = get_next_statement(db, game_id)
+
+    # 5. if no statements left → finish game
+    if not next_statement:
+        game.status = "finished"
+        game.current_statement_id = None
+        game.ended_at = datetime.utcnow()
+        db.commit()
+        return {"status": "finished"}
+
+    # 6. move game forward
+    game.current_statement_id = next_statement.id
+
+    db.commit()
+    db.refresh(game)
+
+    return {
+        "status": "next_round",
+        "statement_id": next_statement.id
+    }
