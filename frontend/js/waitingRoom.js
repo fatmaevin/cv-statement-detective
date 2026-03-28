@@ -8,7 +8,9 @@ const gameId = localStorage.getItem("game_id");
 // Load players
 async function loadPlayers() {
   try {
-    const response = await fetch(`http://127.0.0.1:8000/games/${gameId}/players`);
+    const response = await fetch(
+      `https://api.hosting.codeyourfuture.io/games/${gameId}/players`
+    );
 
     if (!response.ok) {
       throw new Error("Failed to fetch players");
@@ -27,7 +29,6 @@ async function loadPlayers() {
     });
 
     playerCount.textContent = `${players.length} players joined`;
-
   } catch (error) {
     console.error("Error loading players:", error);
   }
@@ -36,7 +37,9 @@ async function loadPlayers() {
 // Check game status
 async function checkGameStatus() {
   try {
-    const response = await fetch(`http://127.0.0.1:8000/games/${gameId}`);
+    const response = await fetch(
+      `https://api.hosting.codeyourfuture.io/games/${gameId}`
+    );
 
     if (!response.ok) {
       throw new Error("Failed to fetch game status");
@@ -50,7 +53,6 @@ async function checkGameStatus() {
       // redirect automatically
       window.location.href = `/game.html?game_id=${gameId}`;
     }
-
   } catch (error) {
     console.error("Error checking game status:", error);
   }

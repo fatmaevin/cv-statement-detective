@@ -19,7 +19,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function loadPlayers(gameId) {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/games/${gameId}/players`);
+      const response = await fetch(
+        `https://api.hosting.codeyourfuture.io/games/${gameId}/players`
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch players");
@@ -64,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const passcode = passcodeInput.value.trim();
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/games", {
+      const response = await fetch("https://api.hosting.codeyourfuture.io/games", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
