@@ -13,4 +13,5 @@ class Game(Base):
     game_link = Column(String, default="", nullable=False)
     status = Column(String, default="waiting")
     created_at = Column(String, default=lambda: datetime.utcnow().isoformat(), nullable=False)
-    ended_at = Column(String, default=lambda: datetime.utcnow().isoformat(), nullable=True)
+    ended_at = Column(String, nullable=True)
+    current_statement_id=Column(Integer,nullable=True)

@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("game id=", gameId);
 
   //--------add helper functions--------------------------
+  // These helpers control player input state consistently across rounds
   function getPlayerInputs() {
     return document.querySelectorAll('input[name="player"]');
   }
@@ -28,51 +29,85 @@ document.addEventListener("DOMContentLoaded", () => {
     el.style.display = show ? "block" : "none";
   }
 
+  function updateWaitingMessage(status) {
+    const remaining = status.pending_guesses;
+
+    if (status.is_complete) {
+      setWaitingMessage("Loading next statement...", { show: true });
+    } else {
+      setWaitingMessage(
+        `Waiting for ${remaining} player${remaining === 1 ? "" : "s"}...`,
+        { show: true },
+      );
+    }
+
+    // store for sync
+    window.latestState = status;
+  }
+
   function setSubmitEnabled(enabled) {
     const submitButton = document.getElementById("submit-guess-btn");
     submitButton.disabled = !enabled;
   }
 
-  //---------------------------------------------------------------------
-  const submitButton = document.getElementById("submit-guess-btn");
-  const waitingMessage = document.getElementById("waiting-message");
-
-  // Stops the game from running multiple times at the same time
-  let isProcessingGameFlow = false;
-
-  // Checks if the user has already made a guess for the current statement
-  // Used to make sure the game doesn’t move to the next statement before the user acts
-  let hasSubmittedGuess = false;
-
-  //-----------Add polling-------------
-  // Polling mechanism to periodically check if all players have submitted guesses
+  // -------- polling system ----------
+  // Polling is the core sync mechanism between all players.
+  // It ensures every client stays aligned with backend state.
   let pollingInterval = null;
- 
+
   function startPolling() {
     if (pollingInterval) return;
+
     pollingInterval = setInterval(async () => {
       const status = await checkGuessStatus();
       if (!status) return;
 
+      // ---- GAME END DETECTION ----
+      // Backend is the single source of truth for game lifecycle
+      if (status?.game_status === "finished") {
+        console.log("Game finished!");
+
+        stopPolling();
+
+        setWaitingMessage("Game finished! Showing results...", { show: true });
+
+        disablePlayers();
+        setSubmitEnabled(false);
+
+        window.location.href = `/pages/result.html?game_id=${gameId}`;
+
+        return;
+      }
+
       console.log("polling:", status);
-      if (status.is_complete ) {
-        await handleGameFlow();
-        
-        // Reset flag for next statement
-        hasSubmittedGuess = false;
+      updateWaitingMessage(status);
+      const currentStatementId = window.currentStatementId;
+
+      // Round completion is detected via backend aggregation state
+      if (status.is_complete) {
+        console.log("Round complete detected from polling");
+
+        const data = await loadStatement();
+        if (data) {
+          resetPlayersSelection();
+          enablePlayers();
+          setSubmitEnabled(false);
+        }
       }
     }, 4000);
   }
 
-  function stopPolling(){
-    if(pollingInterval) {
-        clearInterval(pollingInterval);
-        pollingInterval=null;
-        console.log("polling stopped");
+  function stopPolling() {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+      pollingInterval = null;
+      console.log("polling stopped");
     }
   }
 
-  //-----------Load Statement---------
+  // -------- statement loading ----------
+  // Statement is always fetched from backend (source of truth)
+
   async function loadStatement() {
     const response = await fetch(
       `http://localhost:8000/games/${gameId}/current-statement`,
@@ -101,13 +136,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     statementText.textContent = data.statement;
+
+    // Current statement id is critical for submit + polling sync
     window.currentStatementId = data.statement_id;
   }
 
   loadStatement();
   startPolling();
 
-  // ---------- Load Players ----------
+  // -------- players ----------
+  // Players are static per game session (loaded once)
+
   async function loadPlayers() {
     const response = await fetch(
       `http://localhost:8000/games/${gameId}/players`,
@@ -142,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ---------- Enable Submit ----------
+  // Enable submit when a player is selected
 
   document.getElementById("players-options").addEventListener("change", (e) => {
     if (e.target.name === "player") {
@@ -169,30 +208,20 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    //Mark that current player has submitted a guess
-    hasSubmittedGuess = true;
-
     console.log("selectedPlayer:", selectedPlayerId);
     setSubmitEnabled(false);
-    
 
-    // Show waiting message
-    const status=await checkGuessStatus();
-    if(status){
-        setWaitingMessage(`Waiting for ${status.pending_guesses} players...`);
-    }else{
-        setWaitingMessage("Waiting for other players...");
-    }
+    setWaitingMessage("Waiting for other players...", { show: true });
 
     // Disable all player inputs
     disablePlayers();
-    
+
     // Save the statement ID when submitting to prevent timing issues with polling
     const currentStatementId = window.currentStatementId;
     const playerId = Number(localStorage.getItem("player_id")) || 1;
 
     const payload = {
-      player_id: playerId, 
+      player_id: playerId,
       statement_id: currentStatementId,
       guessed_player_id: Number(selectedPlayerId),
     };
@@ -212,8 +241,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Handle backend errors
     if (!response.ok) {
       console.log("submit failed", result);
-      hasSubmittedGuess=false;
-      setWaitingMessage("",{ show : false });
+
+      setWaitingMessage("", { show: false });
 
       enablePlayers();
 
@@ -222,10 +251,14 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     console.log("submit result", result);
-    await handleGameFlow();
+    setWaitingMessage("Waiting for other players...", { show: true });
+    disablePlayers();
+    setSubmitEnabled(false);
   });
 
-  // ---------- Check statement status ----------
+  // -------- status check ----------
+  // Polling uses this endpoint as the authoritative sync mechanism
+  
   async function checkGuessStatus() {
     if (!window.currentStatementId) return null;
     const response = await fetch(
@@ -239,59 +272,4 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("guess status:", status);
     return status;
   }
-  //--------handle game flow---------------------------
-  window.handleGameFlow = async function () {
-    // Prevent concurrent executions
-    if (isProcessingGameFlow) return;
-    isProcessingGameFlow = true;
-
-    try {
-      const status = await checkGuessStatus();
-      if (!status) return;
-
-      console.log("guess status:", status);
-
-      if (status.is_complete) {
-        console.log("statement finished, loading next ...");
-
-        const data = await loadStatement();
-
-        hasSubmittedGuess=false;
-
-        // Hide waiting message for next round
-        setWaitingMessage("", { show: false });
-
-        // Re-enable inputs for next round
-        enablePlayers();
-
-        if (!data) {
-          console.log("Game finished");
-          stopPolling();
-          setWaitingMessage("🎉 Game finished!",{ show:true });
-         
-          setSubmitEnabled(false);
-          
-          disablePlayers();
-          resetPlayersSelection();
-
-          //---------redirect to next page---------------
-          setTimeout(()=>{
-            window.location.href = `/pages/waiting-result?{game_id=${gameId}}`;
-          },3000);
-          return;
-        }
-        setSubmitEnabled(false);
-        
-
-        //reset UI
-        resetPlayersSelection();
-
-        return data;
-      }
-
-      // Release lock after processing completes
-    } finally {
-      isProcessingGameFlow = false;
-    }
-  };
 });

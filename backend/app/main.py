@@ -3,14 +3,17 @@ from sqlalchemy.orm import Session
 
 
 from app.database import SessionLocal
-from app.services.game_service import create_game, start_game
+from app.services.game_service import (
+    create_game,
+    start_game,
+    finish_game,
+    advance_game_if_ready,
+)
 from app.services.player_service import join_game, get_players
-from app.services.statement_service import get_statements, get_results
-from app.services.guess_service import submit_guess, get_guess_status,get_game_status
+from app.services.statement_service import get_results, get_current_statement
+from app.services.guess_service import submit_guess, get_guess_status, get_game_status
 from app.schemas import JoinGameRequest, GameCreateRequest, SubmitGuessRequest
 from fastapi.middleware.cors import CORSMiddleware
-
-
 
 app = FastAPI()
 
@@ -77,7 +80,11 @@ def join_game_endpoint(
 ):
 
     player = join_game(
-        db=db, name=payload.name, game_id=game_id, statement=payload.statement,passcode=payload.passcode
+        db=db,
+        name=payload.name,
+        game_id=game_id,
+        statement=payload.statement,
+        passcode=payload.passcode,
     )
 
     return {"player_id": player.id, "game_id": player.game_id, "name": player.name}
@@ -89,11 +96,14 @@ def get_players_endpoint(game_id: int, db: Session = Depends(get_db)):
 
 
 # ENDPOINT FOR STATEMENTS
-
-
+# ---------------------------
+# CURRENT GAME STATE (CORE FRONTEND POLLING SOURCE)
+# ---------------------------
 @app.get("/games/{game_id}/current-statement")
 def get_statement_endpoint(game_id: int, db: Session = Depends(get_db)):
-    statement = get_statements(db=db, game_id=game_id)
+
+    statement = get_current_statement(db, game_id)
+
     return {"statement_id": statement.id, "statement": statement.statement}
 
 
@@ -102,18 +112,29 @@ def get_results_endpoint(game_id: int, db: Session = Depends(get_db)):
     return get_results(db=db, game_id=game_id)
 
 
-# ENDPOINT FOR SUBMIT A GUESS
-
-
+# ---------------------------
+# GUESS SUBMISSION + GAME ENGINE TRIGGER
+# ---------------------------
 @app.post("/games/{game_id}/guesses")
 def submit_guess_endpoint(
     game_id: int, payload: SubmitGuessRequest, db: Session = Depends(get_db)
 ):
-    result = submit_guess(db=db, game_id=game_id, payload=payload)
-    return result
+
+    guess = submit_guess(db, game_id, payload)
+
+    # Immediately trigger game progression logic after each submission
+    # This is the core "game engine hook"
+    engine_result = advance_game_if_ready(
+        db=db, game_id=game_id, statement_id=payload.statement_id
+    )
+
+    return {"guess": guess, "engine": engine_result}
 
 
 # ENDPOINT FOR GET GUESS STATUS
+# ---------------------------
+# POLLING STATUS (FRONTEND SYNC)
+# ---------------------------
 
 
 @app.get("/games/{game_id}/guesses/status")
@@ -122,6 +143,18 @@ def check_guesses_endpoint(
 ):
     result = get_guess_status(db=db, game_id=game_id, statement_id=statement_id)
     return result
+
+
+# ---------------------------
+# GAME TERMINATION (MANUAL)
+# ---------------------------
+
+
+@app.patch("/games/{game_id}/finish")
+def finish_game_endpoint(game_id: int, db: Session = Depends(get_db)):
+    result = finish_game(db=db, game_id=game_id)
+    return result
+
 
 # Debug endpoint for internal testing of game status logic.
 # Should be removed or disabled in production environment.
