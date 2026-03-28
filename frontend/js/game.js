@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function loadStatement() {
     const response = await fetch(
-      `http://localhost:8000/games/${gameId}/current-statement`,
+      `https://api.hosting.codeyourfuture.io/games/${gameId}/current-statement`
     );
 
     const data = await response.json();
@@ -149,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function loadPlayers() {
     const response = await fetch(
-      `http://localhost:8000/games/${gameId}/players`,
+      `https://api.hosting.codeyourfuture.io/games/${gameId}/players`
     );
     const players = await response.json();
     console.log("players:", players);
@@ -227,7 +227,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const response = await fetch(
-      `http://localhost:8000/games/${gameId}/guesses`,
+      `https://api.hosting.codeyourfuture.io/games/${gameId}/guesses`,
       {
         method: "POST",
         headers: {
@@ -262,7 +262,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function checkGuessStatus() {
     if (!window.currentStatementId) return null;
     const response = await fetch(
-      `http://localhost:8000/games/${gameId}/guesses/status?statement_id=${window.currentStatementId}`,
+      `https://api.hosting.codeyourfuture.io/games/${gameId}/guesses/status?statement_id=${window.currentStatementId}`,
     );
     if (!response.ok) {
       console.log("Failed to fetch guess status");

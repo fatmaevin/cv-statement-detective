@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/games/${gameId}/players`,
+        `https://api.hosting.codeyourfuture.io/games/${gameId}/players`,
         {
           method: "POST",
           headers: {

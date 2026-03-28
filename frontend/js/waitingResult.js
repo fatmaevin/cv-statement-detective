@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function loadPlayers() {
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/games/${gameId}/players`
+        `https://api.hosting.codeyourfuture.io/games/${gameId}/players`
       );
       if (!response.ok) throw new Error("Failed to fetch players");
 
@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function checkGameStatus() {
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/games/${gameId}/status`
+        `https://api.hosting.codeyourfuture.io/games/${gameId}/status`
       );
       if (!response.ok) throw new Error("Failed to fetch game status");
 
