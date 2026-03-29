@@ -6,7 +6,7 @@ const config = {
     production: "https://api.hosting.codeyourfuture.io",
   },
   timer: {
-    statementTimer: 150000,
+    statementTimer: 15000,
     gamePollingInterval: 3000,
   },
 };
