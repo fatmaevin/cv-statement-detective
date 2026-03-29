@@ -1,83 +1,84 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Create Game Page</title>
-    <link rel="stylesheet" href="/style/style.css" />
-  </head>
-  <body class="page-container">
-    <div class="card">
-      <header class="brand-bg text-center py-6">
-        <img
-          src="/images/CYF-logo.png"
-          alt="CV Matching Game Logo"
-          class="project-logo"
-        />
-        <h1 class="text-2xl font-bold">CV Personal Statement Game</h1>
-        <p class="opacity-90">Create Your Game</p>
-      </header>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Create Game Page</title>
+<link rel="stylesheet" href="/style/style.css" />
+</head>
+<body class="page-container">
+<div class="card">
+ <header class="brand-bg text-center py-6">
+        <img
+          src="/images/CYF-logo.png"
+          alt="CV Matching Game Logo"
+          class="project-logo"
+        />
+        <h1 class="text-2xl font-bold">CV Personal Statement Game</h1>
+        <p class="opacity-90">Create Your Game</p>
+      </header>
 
-      <main class="card-body">
-        <p class="text-center text-gray-700 opacity-90 mt-4">
-          This game helps match personal statements with job requirements in a
-          fun way!
-        </p>
-        
-        <form id="createLinkForm" class="mt-6 space-y-4">
-          <!-- Input player name -->
-          <input
-            type="text"
-            id="playerName"
-            aria-label="playerName"
-            placeholder="Enter your name"
-            required
-            class="border-2 brand-border rounded py-2 px-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-          <!-- Input optional passcode -->
-          <input
-            type="text"
-            id="passcodeInput"
-            aria-label="Passcode"
-            placeholder="Enter passcode (optional)"
-            class="border-2 brand-border rounded py-2 px-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
+      <main class="card-body">
+        <p class="text-center text-gray-700 opacity-90 mt-4">
+          This game helps match personal statements with job requirements in a
+          fun way!
+        </p>
 
-          <!--submit button -->
-          <button 
-           type="submit" 
-           id="generateBtn" 
-           class="brand-button mx-auto block mt-4 disabled:opacity-50 disabled:cursor-not-allowed" 
-           disabled
-          >
-          Generate Game Link
-          </button>
+        <form id="createLinkForm" class="mt-6 space-y-4">
+          <!-- Input player name -->
+          <input
+            type="text"
+            id="playerName"
+            aria-label="playerName"
+            placeholder="Enter your name"
+            required
+            class="border-2 brand-border rounded py-2 px-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <!-- Input optional passcode -->
+          <input
+            type="text"
+            id="passcodeInput"
+            aria-label="Passcode"
+            placeholder="Enter passcode (optional)"
+            class="border-2 brand-border rounded py-2 px-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
 
-          <div class="mt-4 w-full">
-            <div
-              id="gameLinkDisplay"
-              style="display: none;"
-              class="p-4 border-2 brand-border rounded bg-gray-100 text-blue-700 font-medium break-words h-24 overflow-auto"
-            >
-              Your game link will appear here
-            </div>
-          </div>
-        </form>
-        <section id="playersSection" style="display: none;" class="mt-8 max-w-md mx-auto card p-4">
-          <h2 class="players-title text-center mb-3">Players Joined</h2>
-          <ul class="players-grid" aria-live="polite">
-          </ul>
-          <div id="noPlayers" class="text-gray-500 text-center mt-2">
-            No players joined yet
-          </div>
-        </section>
-        <button id="startGameBtn" type="button" style="display: none;" class="brand-button mx-auto block mt-4">
-          Click to start the game!
-        </button>
-        <p id="startGameNote" class="note-text text-center mt-2">
-        </p>
-      </main>
-    </div>
-    <script  type="module" src="/js/createGame.js"></script>
-  </body>
+          <!--submit button -->
+          <button
+           type="submit"
+           id="generateBtn"
+           class="brand-button mx-auto block mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+           disabled
+          >
+          Generate Game Link
+          </button>
+
+          <div class="mt-4 w-full">
+            <div
+              id="gameLinkDisplay"
+              style="display: none;"
+              class="p-4 border-2 brand-border rounded bg-gray-100 text-blue-700 font-medium break-words h-24 overflow-auto"
+            >
+              Your game link will appear here
+            </div>
+          </div>
+        </form>
+        <section id="playersSection" style="display: none;" class="mt-8 max-w-md mx-auto card p-4">
+          <h2 class="players-title text-center mb-3">Players Joined</h2>
+          <ul class="players-grid" aria-live="polite">
+          </ul>
+        </section>
+        <button id="startGameBtn" type="button" style="display: none;" class="brand-button mx-auto block mt-4">
+          Click to start the game!
+        </button>
+        <button id="finishGameBtn" type="button" style="display: none;" class="brand-button mx-auto block mt-4">
+          Finish the game
+        </button>
+        <p id="startGameNote" class="note-text text-center mt-2">
+        </p>
+      </main>
+  </div>
+<script src="/js/CreateGame.js"></script>
+</body>
 </html>
+Make a note of something
