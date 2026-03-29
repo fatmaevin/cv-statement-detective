@@ -24,26 +24,20 @@
 
       <section>
         <h2 class="waiting-title">Waiting for the game to start...</h2>
-        <p class="waiting-subtext">
+        <p class="text-center">
           The volunteer will start the game when everyone has joined.
         </p>
       </section>
 
       <section>
-        <h3 class="players-title">Players in the room</h3>
-
-        <ul class="players-grid">
-          <li class="player-item">Fatma</li>
-          <li class="player-item">Sheida</li>
-          <li class="player-item">Fred</li>
-          <li class="player-item">Suraj</li>
-        </ul>
-
-        <p class="note-text">4 players joined</p>
+        <h3 class="players-title"></h3>
+        <ul class="note-text" id="playersCount"></p>
       </section>
 
       <section class="start-section">
-        <button class="brand-button" disabled>Start Game</button>
+        <button id="startGameBtn" class="brand-button" disabled>
+         Start Game
+        </button>
         <p class="note-text">
           Button will enable once all trainees submit their statements.
         </p>
@@ -51,6 +45,7 @@
 
     </main>
   </div>
+  <script type="module" src="/js/waitingRoom.js"></script>
 
 </body>
 </html>
