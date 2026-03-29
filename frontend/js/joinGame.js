@@ -1,8 +1,12 @@
+import { appConfig } from "./config";
+
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("userJoinForm");
   const userName = document.getElementById("nameInput");
   const statement = document.getElementById("psInput");
   const passcode = document.getElementById("passcodeInput");
+
+  const API_BASE = appConfig.apiBaseUrl;
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -32,16 +36,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      const response = await fetch(
-        `https://api.hosting.codeyourfuture.io/games/${gameId}/players`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(body),
-        }
-      );
+      const response = await fetch(`${API_BASE}/games/${gameId}/players`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
 
       if (!response.ok) {
         const errData = await response.json();

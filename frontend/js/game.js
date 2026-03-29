@@ -1,7 +1,13 @@
+import { appConfig } from "./config";
+
 document.addEventListener("DOMContentLoaded", () => {
   const urlParams = new URLSearchParams(window.location.search);
   const gameId = urlParams.get("game_id");
   console.log("game id=", gameId);
+
+  console.log(appConfig.apiBaseUrl);
+  console.log(appConfig.timer.gamePollingInterval);
+  const API_BASE = appConfig.apiBaseUrl;
 
   //--------add helper functions--------------------------
   // These helpers control player input state consistently across rounds
@@ -94,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
           setSubmitEnabled(false);
         }
       }
-    }, 4000);
+    }, appConfig.timer.gamePollingInterval);
   }
 
   function stopPolling() {
@@ -110,7 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function loadStatement() {
     const response = await fetch(
-      `https://api.hosting.codeyourfuture.io/games/${gameId}/current-statement`
+      `${API_BASE}/games/${gameId}/current-statement`,
     );
 
     const data = await response.json();
@@ -149,7 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function loadPlayers() {
     const response = await fetch(
-      `https://api.hosting.codeyourfuture.io/games/${gameId}/players`
+      `${API_BASE}/games/${gameId}/players`,
     );
     const players = await response.json();
     console.log("players:", players);
@@ -227,7 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const response = await fetch(
-      `https://api.hosting.codeyourfuture.io/games/${gameId}/guesses`,
+      `${API_BASE}/games/${gameId}/guesses`,
       {
         method: "POST",
         headers: {
@@ -258,11 +264,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // -------- status check ----------
   // Polling uses this endpoint as the authoritative sync mechanism
-  
+
   async function checkGuessStatus() {
     if (!window.currentStatementId) return null;
     const response = await fetch(
-      `https://api.hosting.codeyourfuture.io/games/${gameId}/guesses/status?statement_id=${window.currentStatementId}`,
+      `${API_BASE}/games/${gameId}/guesses/status?statement_id=${window.currentStatementId}`,
     );
     if (!response.ok) {
       console.log("Failed to fetch guess status");
