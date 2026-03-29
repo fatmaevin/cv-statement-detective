@@ -6,6 +6,7 @@
     <title>Create Game Page</title>
     <link rel="stylesheet" href="/style/style.css" />
   </head>
+
   <body class="page-container">
     <div class="card">
       <header class="brand-bg text-center py-6">
@@ -23,7 +24,7 @@
           This game helps match personal statements with job requirements in a
           fun way!
         </p>
-        
+
         <form id="createLinkForm" class="mt-6 space-y-4">
           <!-- Input player name -->
           <input
@@ -34,6 +35,7 @@
             required
             class="border-2 brand-border rounded py-2 px-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
+
           <!-- Input optional passcode -->
           <input
             type="text"
@@ -43,14 +45,14 @@
             class="border-2 brand-border rounded py-2 px-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
 
-          <!--submit button -->
-          <button 
-           type="submit" 
-           id="generateBtn" 
-           class="brand-button mx-auto block mt-4 disabled:opacity-50 disabled:cursor-not-allowed" 
-           disabled
+          <!-- Submit button -->
+          <button
+            type="submit"
+            id="generateBtn"
+            class="brand-button mx-auto block mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled
           >
-          Generate Game Link
+            Generate Game Link
           </button>
 
           <div class="mt-4 w-full">
@@ -63,21 +65,42 @@
             </div>
           </div>
         </form>
-        <section id="playersSection" style="display: none;" class="mt-8 max-w-md mx-auto card p-4">
-          <h2 class="players-title text-center mb-3">Players Joined</h2>
-          <ul class="players-grid" aria-live="polite">
-          </ul>
-          <div id="noPlayers" class="text-gray-500 text-center mt-2">
-            No players joined yet
-          </div>
-        </section>
-        <button id="startGameBtn" type="button" style="display: none;" class="brand-button mx-auto block mt-4">
+
+        <section
+        id="playersSection"
+        style="display: none;"
+        class="mt-8 max-w-md mx-auto card p-4"
+      >
+        <h2 class="players-title text-center mb-3">Players Joined</h2>
+        <ul class="players-grid" aria-live="polite"></ul>
+        <div id="noPlayers" class="text-gray-500 text-center mt-2">
+          No players joined yet
+        </div>
+      </section>
+
+        <button
+          id="startGameBtn"
+          type="button"
+          style="display: none;"
+          class="brand-button mx-auto block mt-4"
+          disabled
+        >
           Click to start the game!
         </button>
-        <p id="startGameNote" class="note-text text-center mt-2">
-        </p>
+
+        <button
+          id="finishGameBtn"
+          type="button"
+          style="display: none;"
+          class="brand-button mx-auto block mt-4"
+        >
+          Finish the game
+        </button>
+
+        <p id="startGameNote" class="note-text text-center mt-2"></p>
       </main>
     </div>
-    <script  type="module" src="/js/createGame.js"></script>
+
+    <script src="/js/CreateGame.js"></script>
   </body>
 </html>

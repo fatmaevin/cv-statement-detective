@@ -2,8 +2,9 @@ const playersList = document.getElementById("playersList");
 const playerCount = document.getElementById("playerCount");
 const startGameBtn = document.getElementById("startGameBtn");
 
-// Get game_id from localStorage
-const gameId = localStorage.getItem("game_id");
+// Get game_id from URL
+const params = new URLSearchParams(window.location.search);
+const gameId = params.get("game_id");
 
 // Load players
 async function loadPlayers() {
@@ -11,7 +12,7 @@ async function loadPlayers() {
     const response = await fetch(
       `https://api.hosting.codeyourfuture.io/games/${gameId}/players`
     );
-
+    
     if (!response.ok) {
       throw new Error("Failed to fetch players");
     }
@@ -38,7 +39,7 @@ async function loadPlayers() {
 async function checkGameStatus() {
   try {
     const response = await fetch(
-      `https://api.hosting.codeyourfuture.io/games/${gameId}`
+      `https://api.hosting.codeyourfuture.io/debug/game-status/${gameId}`
     );
 
     if (!response.ok) {
@@ -46,18 +47,20 @@ async function checkGameStatus() {
     }
 
     const game = await response.json();
+    console.log("Game status response:", game);
 
     if (game.status === "in_progress") {
       startGameBtn.disabled = false;
+      startGameBtn.textContent = "Game Started!";
 
-      // redirect automatically
-      window.location.href = `/game.html?game_id=${gameId}`;
+      setTimeout(() => {
+        window.location.href = `/game.html?game_id=${gameId}`;
+      }, 1000);
     }
   } catch (error) {
     console.error("Error checking game status:", error);
   }
 }
-
 // Run every 3 seconds
 setInterval(() => {
   loadPlayers();

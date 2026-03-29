@@ -156,8 +156,6 @@ def finish_game_endpoint(game_id: int, db: Session = Depends(get_db)):
     return result
 
 
-# Debug endpoint for internal testing of game status logic.
-# Should be removed or disabled in production environment.
 @app.get("/debug/game-status/{game_id}")
 def debug_game_status(game_id: int, db: Session = Depends(get_db)):
     return get_game_status(db, game_id)
