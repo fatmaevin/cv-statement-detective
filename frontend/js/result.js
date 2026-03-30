@@ -1,14 +1,17 @@
+import { appConfig } from "./config";
+
 document.addEventListener("DOMContentLoaded", () => {
   const totalStatement = document.getElementById("total-statement");
   const statementsAndScores = document.getElementById("results-container");
-  const API_URL = "https://api.hosting.codeyourfuture.io";
+
+  const API_BASE = appConfig.apiBaseUrl;
 
   const params = new URLSearchParams(window.location.search);
   const gameId = params.get("game_id");
 
   async function getStatements() {
     try {
-      const response = await fetch(`${API_URL}/games/${gameId}/results`);
+      const response = await fetch(`${API_BASE}/games/${gameId}/results`);
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);

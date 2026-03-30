@@ -1,13 +1,15 @@
+import { appConfig } from "./config";
+
 document.addEventListener("DOMContentLoaded", () => {
   const button = document.getElementById("showResultBtn");
   const gameId = new URLSearchParams(window.location.search).get("game_id");
   const list = document.getElementById("playersList");
 
+  const API_BASE = appConfig.apiBaseUrl;
+
   async function loadPlayers() {
     try {
-      const response = await fetch(
-        `https://api.hosting.codeyourfuture.io/games/${gameId}/players`
-      );
+      const response = await fetch(`${API_BASE}/games/${gameId}/players`);
       if (!response.ok) throw new Error("Failed to fetch players");
 
       const players = await response.json();
@@ -26,9 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function checkGameStatus() {
     try {
-      const response = await fetch(
-        `https://api.hosting.codeyourfuture.io/games/${gameId}/status`
-      );
+      const response = await fetch(`${API_BASE}/games/${gameId}/status`);
       if (!response.ok) throw new Error("Failed to fetch game status");
 
       const data = await response.json();

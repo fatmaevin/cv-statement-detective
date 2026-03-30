@@ -1,3 +1,5 @@
+import { appConfig } from "./config";
+
 const playersList = document.getElementById("playersList");
 const playerCount = document.getElementById("playerCount");
 const startGameBtn = document.getElementById("startGameBtn");
@@ -6,13 +8,14 @@ const startGameBtn = document.getElementById("startGameBtn");
 const params = new URLSearchParams(window.location.search);
 const gameId = params.get("game_id");
 
+const API_BASE = appConfig.apiBaseUrl;
+
 // Load players
 async function loadPlayers() {
   try {
-    const response = await fetch(
-      `https://api.hosting.codeyourfuture.io/games/${gameId}/players`
-    );
-    
+
+    const response = await fetch(`${API_BASE}/games/${gameId}/players`);
+
     if (!response.ok) {
       throw new Error("Failed to fetch players");
     }
@@ -38,9 +41,8 @@ async function loadPlayers() {
 // Check game status
 async function checkGameStatus() {
   try {
-    const response = await fetch(
-      `https://api.hosting.codeyourfuture.io/debug/game-status/${gameId}`
-    );
+
+    const response = await fetch(`${API_BASE}/games/${gameId}`);
 
     if (!response.ok) {
       throw new Error("Failed to fetch game status");
@@ -65,7 +67,7 @@ async function checkGameStatus() {
 setInterval(() => {
   loadPlayers();
   checkGameStatus();
-}, 3000);
+}, appConfig.timer.gamePollingInterval);
 
 // Initial load
 loadPlayers();
