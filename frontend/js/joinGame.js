@@ -7,20 +7,20 @@ document.addEventListener("DOMContentLoaded", () => {
   const passcode = document.getElementById("passcodeInput");
 
   const API_BASE = appConfig.apiBaseUrl;
+  const params = new URLSearchParams(window.location.search);
+  const gameId = params.get("game_id");
+  const urlPasscode = params.get("passcode");
+  
+  if (urlPasscode) {
+    passcode.value = urlPasscode;
+  }
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    const params = new URLSearchParams(window.location.search);
-    const gameId = params.get("game_id");
-    const urlPasscode = params.get("passcode");
-
     if (!gameId) {
       alert("Game not found");
       return;
-    }
-    if (urlPasscode) {
-      passcode.value = urlPasscode;
     }
 
     const name = userName.value;
