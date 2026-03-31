@@ -2,7 +2,6 @@ import { appConfig } from "./config";
 
 const playersList = document.getElementById("playersList");
 const playerCount = document.getElementById("playerCount");
-const startGameBtn = document.getElementById("startGameBtn");
 
 // Get game_id from URL
 const params = new URLSearchParams(window.location.search);
@@ -38,31 +37,28 @@ async function loadPlayers() {
   }
 }
 
-// Check game status
 async function checkGameStatus() {
   try {
-
-    const response = await fetch(`${API_BASE}/games/${gameId}`);
+    const response = await fetch(
+      `${API_BASE}/debug/game-status/${gameId}`
+    );
 
     if (!response.ok) {
       throw new Error("Failed to fetch game status");
     }
 
     const game = await response.json();
-    console.log("Game status response:", game);
+    console.log("Game status:", game);
 
     if (game.status === "in_progress") {
-      startGameBtn.disabled = false;
-      startGameBtn.textContent = "Game Started!";
-
-      setTimeout(() => {
-        window.location.href = `/game.html?game_id=${gameId}`;
-      }, 1000);
+      window.location.href = `/pages/game.html?game_id=${gameId}`;
     }
+
   } catch (error) {
     console.error("Error checking game status:", error);
   }
 }
+
 // Run every 3 seconds
 setInterval(() => {
   loadPlayers();

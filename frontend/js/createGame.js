@@ -1,4 +1,5 @@
 import { appConfig } from "./config";
+
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("createLinkForm");
   const nameInput = document.getElementById("playerName");
@@ -13,13 +14,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const noPlayers = document.getElementById("noPlayers");
   const playersList = document.querySelector(".players-grid");
 
-  let pollingInterval = null; // Disable generate button until a name is entered
+  let pollingInterval = null;
   const API_BASE = appConfig.apiBaseUrl;
 
+  // Enable button only if name exists
   nameInput.addEventListener("input", () => {
     generateBtn.disabled = nameInput.value.trim() === "";
-  }); // Load players for the current game
+  });
 
+  // =========================
+  // LOAD PLAYERS
+  // =========================
   async function loadPlayers(gameId) {
     try {
       const response = await fetch(`${API_BASE}/games/${gameId}/players`);
@@ -29,7 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const players = await response.json();
-
       playersList.innerHTML = "";
 
       if (players.length === 0) {
@@ -48,18 +52,55 @@ document.addEventListener("DOMContentLoaded", () => {
         playersList.appendChild(li);
       });
 
-      if (players.length > 2) {
+      // IMPORTANT: Only enable if game NOT started
+      if (players.length > 2 && startGameBtn.textContent !== "Game Started") {
         startGameBtn.disabled = false;
         startGameNote.textContent = "Ready to start the game!";
-      } else {
+      } else if (startGameBtn.textContent !== "Game Started") {
         startGameBtn.disabled = true;
         startGameNote.textContent = "At least 3 players are required to start.";
       }
+
     } catch (error) {
       console.error("Error loading players:", error);
     }
-  } // Create game form submission handler
+  }
 
+  // =========================
+  // CHECK GAME STATUS
+  // =========================
+  async function checkGameStatus() {
+    const gameId = localStorage.getItem("game_id");
+    if (!gameId) return;
+
+    try {
+      const response = await fetch(`${API_BASE}/debug/game-status/${gameId}`);
+      if (!response.ok) return;
+
+      const game = await response.json();
+
+      if (game.status === "in_progress") {
+        startGameBtn.disabled = true;
+        startGameBtn.textContent = "Game Started";
+
+        finishGameBtn.style.display = "block";
+        finishGameBtn.disabled = false;
+      }
+
+      if (game.status === "finished") {
+        startGameNote.textContent = "Game finished!";
+        startGameBtn.disabled = true;
+        finishGameBtn.disabled = true;
+      }
+
+    } catch (error) {
+      console.error("Error checking game status:", error);
+    }
+  }
+
+  // =========================
+  // CREATE GAME
+  // =========================
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -79,146 +120,132 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       const data = await response.json();
-      console.log("Create game response:", data);
 
       if (!response.ok) {
         throw new Error(data.detail || "Failed to create game");
       }
 
       localStorage.setItem("game_id", data.game_id);
-      if (data.host_id) {
-        localStorage.setItem("host_id", data.host_id);
-      }
 
       const fullLink = data.game_link;
+
+      gameLinkDisplay.style.display = "block";
       gameLinkDisplay.style.display = "block";
       gameLinkDisplay.innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="break-all font-medium text-blue-700">
-              ${fullLink}
-            </span>
-  
-            <div class="relative group">
-              <button id="copyBtn" type="button" class="text-lg cursor-pointer hover:opacity-70">
-                :clipboard:
-              </button>
-  
-              <span class="absolute top-full mt-1 left-1/2 -translate-x-1/2
-                           bg-black text-white text-xs px-2 py-1 rounded
-                           opacity-0 group-hover:opacity-100 transition whitespace-nowrap">
-                Copy link
-              </span>
-            </div>
-  
-            <span id="copyMessage" class="text-green-500 text-sm"></span>
-          </div>
-        `;
+        <div class="flex items-start gap-2">
+          <span class="font-medium text-blue-700 break-all text-sm leading-tight">
+            ${fullLink}
+          </span>
+      
+          <button id="copyBtn" type="button" class="text-lg cursor-pointer hover:opacity-70">
+            📋
+          </button>
+        </div>
+        <span id="copyMessage" class="text-green-500 text-sm"></span>
+      `;
 
       document.getElementById("copyBtn").addEventListener("click", () => {
-        navigator.clipboard.writeText(data.game_link);
+        navigator.clipboard.writeText(fullLink);
 
         const msg = document.getElementById("copyMessage");
-        msg.textContent = "Copied game link";
+        msg.textContent = "Copied!";
 
         setTimeout(() => {
           msg.textContent = "";
-        }, 3000);
+        }, 2000);
       });
 
       playersSection.style.display = "block";
       startGameBtn.style.display = "block";
 
-      await loadPlayers(data.game_id); // Start polling for players every 3 seconds
+      await loadPlayers(data.game_id);
 
+      // START POLLING
       if (!pollingInterval) {
         pollingInterval = setInterval(() => {
           const gameId = localStorage.getItem("game_id");
           if (gameId) {
             loadPlayers(gameId);
+            checkGameStatus(); // ✅ KEY FIX
           }
         }, appConfig.timer.gamePollingInterval);
       }
 
-      console.log("Game created:", data);
     } catch (error) {
       console.error("Error:", error);
       gameLinkDisplay.style.display = "block";
       gameLinkDisplay.textContent = "Error creating game link.";
     }
-  }); // Start game button click handler
+  });
 
+  // =========================
+  // START GAME
+  // =========================
   startGameBtn.addEventListener("click", async () => {
     const gameId = localStorage.getItem("game_id");
 
-    if (!gameId) {
-      console.error("No game_id found");
-      startGameNote.textContent = "Game ID not found.";
-      return;
-    }
+    if (!gameId) return;
 
     try {
       startGameBtn.disabled = true;
+      startGameBtn.textContent = "Starting...";
 
       const response = await fetch(`${API_BASE}/games/${gameId}/start`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.detail || "Failed to start game");
+        throw new Error("Failed to start game");
       }
 
-      startGameNote.textContent = "Game started!"; // Show finish button
-
+     
+      startGameBtn.textContent = "Game Started";
       finishGameBtn.style.display = "block";
+      finishGameBtn.disabled = false;
+      
+      startGameNote.textContent = "Game in progress...";
+
     } catch (error) {
       console.error("Error starting game:", error);
-      startGameNote.textContent = "Error starting game.";
-      startGameBtn.disabled = false;
-    }
-  }); // Finish game button click handler
 
+      startGameBtn.disabled = false;
+      startGameBtn.textContent = "Start Game";
+      startGameNote.textContent = "Error starting game.";
+    }
+  });
+
+  // =========================
+  // FINISH GAME
+  // =========================
   finishGameBtn.addEventListener("click", async () => {
     const gameId = localStorage.getItem("game_id");
 
-    if (!gameId) {
-      console.error("No game_id found");
-      return;
-    }
+    if (!gameId) return;
 
     try {
       finishGameBtn.disabled = true;
 
       const response = await fetch(`${API_BASE}/games/${gameId}/finish`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        method: "PATCH",
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.detail || "Failed to finish game");
+        throw new Error("Failed to finish game");
       }
 
-      startGameNote.textContent = "Game finished!"; // Optional: stop polling
+      startGameNote.textContent = "Game finished!";
 
-      if (pollingInterval) {
-        clearInterval(pollingInterval);
-      } // Optional: redirect
+      if (pollingInterval) clearInterval(pollingInterval);
 
       setTimeout(() => {
-        window.location.href = `/pages/results.html?game_id=${gameId}`;
-      }, 2000);
+        window.location.href = `/pages/result.html?game_id=${gameId}`;
+      }, 1500);
+
     } catch (error) {
       console.error("Error finishing game:", error);
-      startGameNote.textContent = "Error finishing game.";
       finishGameBtn.disabled = false;
+      startGameNote.textContent = "Error finishing game.";
     }
   });
+
 });

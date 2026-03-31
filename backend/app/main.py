@@ -14,6 +14,7 @@ from app.services.statement_service import get_results, get_current_statement
 from app.services.guess_service import submit_guess, get_guess_status, get_game_status
 from app.schemas import JoinGameRequest, GameCreateRequest, SubmitGuessRequest
 from fastapi.middleware.cors import CORSMiddleware
+from app.models.game import Game
 
 app = FastAPI()
 
@@ -70,6 +71,19 @@ def start_game_endpoint(game_id: int, db: Session = Depends(get_db)):
         "game_id": game.id,
         "status": game.status,
         "message": "Game started successfully",
+    }
+
+# ENDPOINT TO GET GAME STATUS
+@app.get("/games/{game_id}")
+def get_game_endpoint(game_id: int, db: Session = Depends(get_db)):
+    game = db.query(game).filter(game.id == game_id).first()
+
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+
+    return {
+        "game_id": game.id,
+        "status": game.status,
     }
 
 
@@ -158,4 +172,13 @@ def finish_game_endpoint(game_id: int, db: Session = Depends(get_db)):
 
 @app.get("/debug/game-status/{game_id}")
 def debug_game_status(game_id: int, db: Session = Depends(get_db)):
-    return get_game_status(db, game_id)
+    game = db.query(Game).filter(Game.id == game_id).first()
+
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+
+    return {
+        "game_id": game.id,
+        "status": game.status,
+        "is_game_completed": game.status == "finished"
+    }
