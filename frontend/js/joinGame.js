@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const API_BASE = appConfig.apiBaseUrl;
   const params = new URLSearchParams(window.location.search);
   const gameId = params.get("game_id");
+  localStorage.setItem("game_id", gameId);
   const urlPasscode = params.get("passcode");
   
   if (urlPasscode) {
@@ -51,6 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const data = await response.json();
+      localStorage.setItem("player_id", data.player_id);
 
       window.location.href = `/pages/waiting-room.html?game_id=${data.game_id}&playerId=${data.player_id}`;
     } catch (error) {
