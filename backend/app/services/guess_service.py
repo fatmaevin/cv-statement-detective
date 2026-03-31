@@ -38,6 +38,8 @@ def submit_guess(db, game_id: int, payload):
     db.commit()
     db.refresh(new_guess)
 
+    update_statement_score(db, statement, payload.guessed_player_id)
+
     return {"message": "Guess submitted successfully", "guess_id": new_guess.id}
 
 
@@ -127,3 +129,10 @@ def is_round_complete(db, game_id: int, statement_id: int) -> bool:
     )
 
     return guesses_count >= total_players
+
+
+def update_statement_score(db, statement, guessed_player_id: int):
+    if guessed_player_id == statement.player_id:
+        statement.score += 1
+        db.commit()
+        db.refresh(statement)
