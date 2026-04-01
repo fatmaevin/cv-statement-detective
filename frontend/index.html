@@ -6,27 +6,39 @@
     <title>CV Matching Game - Homepage</title>
     <link rel="stylesheet" href="/style/style.css" />
   </head>
-  <body class="h-screen grid place-items-center bg-white">
-    <div id="homepage-container" class="card card-body flex flex-col items-center space-y-4">
-      <img
-      src="/images/CYF-logo.png"
-      alt="CV Matching Game Logo"
-      class="project-logo"
-      />
-      <h1 class="text-3xl font-bold text-center mb-4">
-        Welcome to the CV Statement Detective Game!
-      </h1>
-      <p class="text-center text-gray-600 mb-8">
-        Test how personal your CV statements are and have fun with your
-        classmates!
-      </p>
-      <button
-        id="create-game"
-        class="brand-button text-2xl shadow-md w-80 h-20"
+
+  <body class="bg-white">
+    <!-- Main landmark for accessibility -->
+    <main class="h-screen grid place-items-center">
+      <div
+        id="homepage-container"
+        class="card card-body flex flex-col items-center space-y-4"
       >
-        Create Game
-      </button>
-    </div>
+        <img
+          src="/images/CYF-logo.png"
+          alt="CV Matching Game Logo"
+          class="project-logo"
+        />
+
+        <h1 class="text-3xl font-bold text-center mb-4">
+          Welcome to the CV Statement Detective Game!
+        </h1>
+
+        <p class="text-center text-gray-600 mb-8">
+          Test how personal your CV statements are and have fun with your
+          classmates!
+        </p>
+
+        <button
+          id="create-game"
+          class="brand-button text-2xl shadow-md w-80 h-20"
+          aria-label="Create a new game"
+        >
+          Create Game
+        </button>
+      </div>
+    </main>
+
     <script type="module" src="/js/main.js"></script>
   </body>
 </html>
