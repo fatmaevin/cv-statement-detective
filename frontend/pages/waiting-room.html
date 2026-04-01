@@ -1,50 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Waiting Room</title>
     <link rel="stylesheet" href="/style/style.css" />
   </head>
 
-<body class="page-container">
-
-  <div class="card">
-    <header class="brand-bg text-center py-6">
-      <img
+  <body class="page-container">
+    <div class="card">
+      <header class="brand-bg text-center py-6 text-white">
+        <img
           src="/images/CYF-logo.png"
           alt="CV Matching Game Logo"
           class="project-logo"
-      />
-      <h1 class="text-2xl font-bold">CV Personal Statement Game</h1>
-      <p class="opacity-90">Waiting Room</p>
-    </header>
+        />
+        <h1 class="text-2xl font-bold">CV Personal Statement Game</h1>
+        <p>Waiting Room</p>
+      </header>
 
-    <main class="card-body">
+      <main class="card-body">
+        <section>
+          <h2 class="waiting-title">Waiting for the game to start...</h2>
+          <p class="text-center text-gray-800">
+            The volunteer will start the game when everyone has joined.
+          </p>
+        </section>
 
-      <section>
-        <h2 class="waiting-title">Waiting for the game to start...</h2>
-        <p class="text-center">
-          The volunteer will start the game when everyone has joined.
-        </p>
-      </section>
+        <section>
+          <h3 class="players-title">Players</h3>
+          <p class="text-gray-700" id="playersCount"></p>
+        </section>
 
-      <section>
-        <h3 class="players-title"></h3>
-        <ul class="note-text" id="playersCount"></p>
-      </section>
+        <section class="start-section">
+          <ul id="playersList" class="players-grid" aria-live="polite"></ul>
+          <p id="playerCount" class="note-text">0 players joined</p>
+          <p class="note-text">
+            Game will start when the host clicks the "Start Game" button
+          </p>
+        </section>
+      </main>
+    </div>
 
-      <section class="start-section">
-        <ul id="playersList" class="players-grid" aria-live="polite"></ul>
-        <p id="playerCount" class="note-text">0 players joined</p>
-        <p class="note-text">
-          Game will start when the host clicks the "Start Game" button
-        </p>
-      </section>
-
-    </main>
-  </div>
-  <script type="module" src="/js/waitingRoom.js"></script>
-
-</body>
+    <script type="module" src="/js/waitingRoom.js"></script>
+  </body>
 </html>
