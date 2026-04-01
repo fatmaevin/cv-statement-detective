@@ -60,7 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
         startGameBtn.disabled = true;
         startGameNote.textContent = "At least 3 players are required to start.";
       }
-
     } catch (error) {
       console.error("Error loading players:", error);
     }
@@ -91,8 +90,11 @@ document.addEventListener("DOMContentLoaded", () => {
         startGameNote.textContent = "Game finished!";
         startGameBtn.disabled = true;
         finishGameBtn.disabled = true;
-      }
 
+        // redirect host to results page
+        window.location.href = `/pages/result.html?game_id=${gameId}`;
+        return;
+      }
     } catch (error) {
       console.error("Error checking game status:", error);
     }
@@ -170,7 +172,6 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }, appConfig.timer.gamePollingInterval);
       }
-
     } catch (error) {
       console.error("Error:", error);
       gameLinkDisplay.style.display = "block";
@@ -198,13 +199,11 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("Failed to start game");
       }
 
-     
       startGameBtn.textContent = "Game Started";
       finishGameBtn.style.display = "block";
       finishGameBtn.disabled = false;
-      
-      startGameNote.textContent = "Game in progress...";
 
+      startGameNote.textContent = "Game in progress...";
     } catch (error) {
       console.error("Error starting game:", error);
 
@@ -240,12 +239,10 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => {
         window.location.href = `/pages/result.html?game_id=${gameId}`;
       }, 1500);
-
     } catch (error) {
       console.error("Error finishing game:", error);
       finishGameBtn.disabled = false;
       startGameNote.textContent = "Error finishing game.";
     }
   });
-
 });
