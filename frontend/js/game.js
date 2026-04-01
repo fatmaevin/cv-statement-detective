@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateWaitingMessage(status) {
     const remaining = status.pending_guesses;
 
-    if (status.is_complete) {
+    if (status.is_complete || status.is_expired) {
       setWaitingMessage("Loading next statement...", { show: true });
     } else {
       setWaitingMessage(
@@ -67,6 +67,24 @@ document.addEventListener("DOMContentLoaded", () => {
     pollingInterval = setInterval(async () => {
       const status = await checkGuessStatus();
       if (!status) return;
+
+      // 🔥 NEW: detect statement change (SYNC FIX)
+      if (
+        status.current_statement_id &&
+        status.current_statement_id !== window.currentStatementId
+      ) {
+        console.log("SYNC FIX: statement changed -> reloading");
+
+        const data = await loadStatement();
+
+        if (data) {
+          resetPlayersSelection();
+          enablePlayers();
+          setSubmitEnabled(false);
+        }
+
+        return; 
+      }
 
       // ---- GAME END DETECTION ----
       // Backend is the single source of truth for game lifecycle
@@ -101,7 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     }, appConfig.timer.gamePollingInterval);
-  }
+  };
 
   function stopPolling() {
     if (pollingInterval) {

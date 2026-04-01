@@ -1,7 +1,8 @@
-from app.services.utils import game_check, statement_check
+from app.services.utils import game_check, statement_check, is_round_expired
 from app.models import Guess, Statement, Player
 from fastapi import HTTPException
 from app.services.player_service import get_players
+
 
 
 def submit_guess(db, game_id: int, payload):
@@ -44,29 +45,68 @@ def submit_guess(db, game_id: int, payload):
 
 
 def get_guess_status(db, game_id: int, statement_id: int):
-    # game validation
+    # Game validation
     game = game_check(db, game_id)
 
-    # statement validation
-    statement = statement_check(db, statement_id, game_id)
+    # ------------------------------------------------------------
+    # Resolve current active statement
+    # ------------------------------------------------------------
+    # IMPORTANT:
+    # We DO NOT trust the incoming statement_id from frontend.
+    # Instead, we always use backend source of truth:
+    # game.current_statement_id
+    #
+    # This prevents de sync issues between multiple clients.
+    current_statement_id = game.current_statement_id
+
+    # ------------------------------------------------------------
+    # EDGE CASE: No active statement
+    # ------------------------------------------------------------
+    # This happens when:
+    # - game has not started yet
+    # - or game has already finished
+    # - or statement was cleared after last round
+    #
+    # We return minimal state so frontend can safely stop or wait.
+    if not current_statement_id:
+     return {
+        "game_id": game_id,
+        "statement_id": None,
+        "current_statement_id": None,
+        "is_complete": False,
+        "is_expired": False,
+        "game_status": game.status,
+     }
 
     players = get_players(db=db, game_id=game_id)
     guesses = (
         db.query(Guess)
-        .filter(Guess.game_id == game_id, Guess.statement_id == statement_id)
+        .filter(Guess.game_id == game_id, Guess.statement_id == current_statement_id)
         .all()
     )
 
     submitted_guesses = len(guesses)
     total_players = len(players)
 
-    # Derived sync state for frontend polling
+    # ------------------------------------------------------------
+    # Derived sync state (frontend polling contract)
+    # ------------------------------------------------------------
+    # These values are NOT stored in DB.
+    # They are computed per request to keep frontend synced.
     pending_guesses = max(total_players - submitted_guesses, 0)
     is_complete = submitted_guesses == total_players
+    is_expired = is_round_expired(game) 
 
+    # ------------------------------------------------------------
+    # Response contract for frontend polling system
+    # ------------------------------------------------------------
+    # Frontend relies on:
+    # - current_statement_id → detect round change
+    # - is_complete / is_expired → trigger loading next round
+    # - pending_guesses → UI feedback ("waiting for players")
     return {
         "game_id": game_id,
-        "statement_id": statement_id,
+        "statement_id": current_statement_id,
         # Important for frontend sync (current active round pointer)
         "current_statement_id": game.current_statement_id,
         "total_players": total_players,
@@ -75,6 +115,7 @@ def get_guess_status(db, game_id: int, statement_id: int):
         # Core flag used by polling system to trigger next round
         "is_complete": is_complete,
         "game_status": game.status,
+        "is_expired": is_expired,
     }
 
 
@@ -136,3 +177,5 @@ def update_statement_score(db, statement, guessed_player_id: int):
         statement.score += 1
         db.commit()
         db.refresh(statement)
+
+ 

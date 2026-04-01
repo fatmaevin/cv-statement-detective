@@ -6,12 +6,12 @@ from app.models.game import Game
 
 # SERVICE FUNCTION TO CREATE A NEW GAME
 from datetime import datetime
-from sqlalchemy.orm import Session
 import random
 
 from app.models.game import Game
 from app.services.statement_service import get_next_statement
 from app.services.guess_service import is_round_complete
+from app.services.utils import is_round_expired
 
 
 def create_game(db: Session, host_name: str, passcode: str) -> Game:
@@ -55,6 +55,7 @@ def start_game(db: Session, game_id: int) -> Game | None:
             if not first_statement:
                 raise HTTPException(status_code=400, detail="No statements available")
             game.current_statement_id = first_statement.id
+            game.round_started_at = datetime.utcnow().isoformat()
             db.commit()
             db.refresh(game)
         return game
@@ -68,6 +69,7 @@ def start_game(db: Session, game_id: int) -> Game | None:
 
     # Initialize first round
     game.current_statement_id = first_statement.id
+    game.round_started_at = datetime.utcnow().isoformat()
 
     db.commit()
     db.refresh(game)
@@ -95,32 +97,93 @@ def finish_game(db: Session, game_id: int) -> Game | None:
 # -------------------------------------
 # GAME FLOW ADVANCER (CRITICAL SECTION)
 # -------------------------------------
-def advance_game_if_ready(db: Session, game_id: int, statement_id: int):
+def advance_game_if_ready(db: Session, game_id: int):
 
-    # Step 1: Check if all players finished current round
-    if not is_round_complete(db, game_id, statement_id):
+    # ------------------------------------------------------------
+    # STEP 1: Load current game state (NO LOCK YET)
+    # ------------------------------------------------------------
+    # We first fetch the game in a lightweight query because:
+    # - Most requests will NOT result in a round change
+    # - We avoid unnecessary row locking (performance optimization)
+    # - We need current_statement_id to evaluate round state
+
+    game = db.query(Game).filter(Game.id == game_id).first()
+
+    # Safety check:
+    # If game doesn't exist OR no active statement,
+    # there is nothing to advance.
+    if not game or not game.current_statement_id:
         return None
 
-    # Step 2: Lock game row to prevent race conditions (multi-client safety)
+    current_statement_id = game.current_statement_id
+
+    # ------------------------------------------------------------
+    # STEP 2: Decide if round should advance
+    # ------------------------------------------------------------
+    # A round should advance ONLY if ONE of these is true:
+    # 1. All players have submitted guesses (round complete)
+    # 2. Time limit for the round has expired
+    #
+    # If neither condition is met, we exit early to avoid:
+    # - premature round switching
+    # - inconsistent game state between players
+    if not (
+        is_round_complete(db, game_id, current_statement_id)
+        or is_round_expired(game)
+    ):
+        return None
+
+    # ------------------------------------------------------------
+    # STEP 3: Acquire row lock (race condition protection)
+    # ------------------------------------------------------------
+    # At this point, multiple clients (submit + polling) may try
+    # to advance the game simultaneously.
+    #
+    # with_for_update() ensures:
+    # - Only one transaction can modify this game row at a time
+    # - Prevents double advancement of the same round
     game = db.query(Game).filter(Game.id == game_id).with_for_update().first()
 
-    # 3. prevent double execution (race safety)
-    if game.current_statement_id != statement_id:
+    # Safety re-check after lock:
+    # Game state might have changed between STEP 1 and now.
+    # If no active statement exists anymore, stop execution.
+    if not game.current_statement_id:
         return None
 
-    # 4. get next statement
+    # ------------------------------------------------------------
+    # STEP 4: Fetch next statement
+    # ------------------------------------------------------------
+    # This determines what the next round should display.
+    # If None is returned, it means we reached the end of the game.
     next_statement = get_next_statement(db, game_id)
 
-    # 5. if no statements left → finish game
+    # ------------------------------------------------------------
+    # STEP 5: End game if no more statements exist
+    # ------------------------------------------------------------
+    # This is the terminal state of the game lifecycle.
+    # We explicitly:
+    # - mark game as finished
+    # - clear current statement
+    # - set timestamps for audit/history
     if not next_statement:
         game.status = "finished"
         game.current_statement_id = None
+        game.round_started_at = None
         game.ended_at = datetime.utcnow()
         db.commit()
         return {"status": "finished"}
 
-    # 6. move game forward
+    # ------------------------------------------------------------
+    # STEP 6: Advance to next round
+    # ------------------------------------------------------------
+    # We move game state forward:
+    # - update active statement
+    # - reset round timer
+    #
+    # This ensures all clients will see the same new state
+    # on next polling cycle.
     game.current_statement_id = next_statement.id
+    game.round_started_at = datetime.utcnow().isoformat()
 
     db.commit()
     db.refresh(game)

@@ -76,7 +76,7 @@ def start_game_endpoint(game_id: int, db: Session = Depends(get_db)):
 # ENDPOINT TO GET GAME STATUS
 @app.get("/games/{game_id}")
 def get_game_endpoint(game_id: int, db: Session = Depends(get_db)):
-    game = db.query(game).filter(game.id == game_id).first()
+    game = db.query(Game).filter(game.id == game_id).first()
 
     if not game:
         raise HTTPException(status_code=404, detail="Game not found")
@@ -138,8 +138,9 @@ def submit_guess_endpoint(
 
     # Immediately trigger game progression logic after each submission
     # This is the core "game engine hook"
+   
     engine_result = advance_game_if_ready(
-        db=db, game_id=game_id, statement_id=payload.statement_id
+        db=db, game_id=game_id
     )
 
     return {"guess": guess, "engine": engine_result}
@@ -156,6 +157,8 @@ def check_guesses_endpoint(
     game_id: int, statement_id: int, db: Session = Depends(get_db)
 ):
     result = get_guess_status(db=db, game_id=game_id, statement_id=statement_id)
+    advance_game_if_ready(db, game_id)
+
     return result
 
 
