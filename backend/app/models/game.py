@@ -15,3 +15,4 @@ class Game(Base):
     created_at = Column(String, default=lambda: datetime.utcnow().isoformat(), nullable=False)
     ended_at = Column(String, nullable=True)
     current_statement_id=Column(Integer,nullable=True)
+    round_started_at = Column(String, nullable=True)
