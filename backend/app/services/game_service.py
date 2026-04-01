@@ -55,6 +55,7 @@ def start_game(db: Session, game_id: int) -> Game | None:
             if not first_statement:
                 raise HTTPException(status_code=400, detail="No statements available")
             game.current_statement_id = first_statement.id
+            game.round_started_at = datetime.utcnow().isoformat()
             db.commit()
             db.refresh(game)
         return game
@@ -68,6 +69,7 @@ def start_game(db: Session, game_id: int) -> Game | None:
 
     # Initialize first round
     game.current_statement_id = first_statement.id
+    game.round_started_at = datetime.utcnow().isoformat()
 
     db.commit()
     db.refresh(game)
@@ -115,12 +117,14 @@ def advance_game_if_ready(db: Session, game_id: int, statement_id: int):
     if not next_statement:
         game.status = "finished"
         game.current_statement_id = None
+        game.round_started_at = None
         game.ended_at = datetime.utcnow()
         db.commit()
         return {"status": "finished"}
 
     # 6. move game forward
     game.current_statement_id = next_statement.id
+    game.round_started_at = datetime.utcnow().isoformat()
 
     db.commit()
     db.refresh(game)

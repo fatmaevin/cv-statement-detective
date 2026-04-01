@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 import random
+from datetime import datetime
 
 from app.models import Statement, Game
 from app.services.utils import game_check
@@ -21,6 +22,7 @@ def get_current_statement(db: Session, game_id: int):
             raise HTTPException(status_code=404, detail="No statements left")
 
         game.current_statement_id = statement.id
+        game.round_started_at = datetime.utcnow().isoformat()
         db.commit()
         db.refresh(game)
 
