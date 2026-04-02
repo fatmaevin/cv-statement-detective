@@ -32,13 +32,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     el.textContent = text;
 
-     if (show) {
-    el.classList.remove("opacity-0", "translate-y-2");
-    el.classList.add("opacity-100", "translate-y-0");
-  } else {
-    el.classList.add("opacity-0", "translate-y-2");
-    el.classList.remove("opacity-100", "translate-y-0");
-  }
+    if (show) {
+      el.classList.remove("opacity-0", "translate-y-2");
+      el.classList.add("opacity-100", "translate-y-0");
+    } else {
+      el.classList.add("opacity-0", "translate-y-2");
+      el.classList.remove("opacity-100", "translate-y-0");
+    }
 
   }
 
@@ -170,12 +170,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         stopPolling();
 
-        setWaitingMessage("Game finished! Showing results...", { show: true });
+        setWaitingMessage("Game finished! Loading results...", { show: true });
 
         disablePlayers();
         setSubmitEnabled(false);
 
-        window.location.href = `/pages/result.html?game_id=${gameId}`;
+        setTimeout(() => {
+          window.location.href=`/pages/result.html?game_id=${gameId}`;
+        }, 3000);
 
         return;
       }
