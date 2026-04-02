@@ -15,6 +15,8 @@ from app.services.guess_service import submit_guess, get_guess_status, get_game_
 from app.schemas import JoinGameRequest, GameCreateRequest, SubmitGuessRequest
 from fastapi.middleware.cors import CORSMiddleware
 from app.models.game import Game
+from app.config import ROUND_DURATION
+from datetime import datetime
 
 app = FastAPI()
 
@@ -76,7 +78,8 @@ def start_game_endpoint(game_id: int, db: Session = Depends(get_db)):
 # ENDPOINT TO GET GAME STATUS
 @app.get("/games/{game_id}")
 def get_game_endpoint(game_id: int, db: Session = Depends(get_db)):
-    game = db.query(Game).filter(game.id == game_id).first()
+    
+    game = db.query(Game).filter(Game.id == game_id).first()
 
     if not game:
         raise HTTPException(status_code=404, detail="Game not found")
@@ -84,6 +87,9 @@ def get_game_endpoint(game_id: int, db: Session = Depends(get_db)):
     return {
         "game_id": game.id,
         "status": game.status,
+        "current_statement_id": game.current_statement_id,
+        "round_started_at": game.round_started_at,
+        "server_time": datetime.utcnow().isoformat()
     }
 
 
