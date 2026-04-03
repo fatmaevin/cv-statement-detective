@@ -238,7 +238,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       setTimeout(() => {
         window.location.href = `/pages/result.html?game_id=${gameId}`;
-      }, 1500);
+      }, 3000);
     } catch (error) {
       console.error("Error finishing game:", error);
       finishGameBtn.disabled = false;

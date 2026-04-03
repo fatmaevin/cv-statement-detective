@@ -32,7 +32,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     el.textContent = text;
 
-    el.style.display = show ? "block" : "none";
+    if (show) {
+      el.classList.remove("opacity-0", "translate-y-2");
+      el.classList.add("opacity-100", "translate-y-0");
+    } else {
+      el.classList.add("opacity-0", "translate-y-2");
+      el.classList.remove("opacity-100", "translate-y-0");
+    }
+
   }
 
   function updateWaitingMessage(status) {
@@ -56,6 +63,76 @@ document.addEventListener("DOMContentLoaded", () => {
     submitButton.disabled = !enabled;
   }
 
+  // -------- Timer helpers --------
+
+  // Calculates remaining time based on server start time (not client countdown)
+  function getTimeLeft(roundStartedAt, duration, drift) {
+    // Normalize backend datetime string (trim microseconds for JS compatibility)
+    const fixedTime = roundStartedAt.slice(0, 23) + "Z";
+
+    // Convert round start time (server reference time) into milliseconds
+    const start = new Date(fixedTime).getTime();
+
+    // drift = difference between client clock and server clock
+    const now = Date.now() - drift;
+
+    // Compute absolute end time of the round
+    const endTime = start + duration * 1000;
+
+    // Return remaining seconds (never negative)
+    return Math.max(Math.ceil((endTime - now) / 1000), 0);
+  }
+  // Holds reference to active timer interval (used to prevent multiple timers running)
+  let timerInterval = null;
+
+  // Starts the countdown timer for a game round
+  function startTimer(roundStartedAt, duration, serverTime) {
+    // Prevent multiple intervals from stacking
+    if (timerInterval) clearInterval(timerInterval);
+
+    const text = document.getElementById("timeText");
+    const dot = document.getElementById("pulseDot");
+    const ping = document.getElementById("pulsePing");
+
+    // Convert server time to milliseconds
+    const serverNow = new Date(serverTime.slice(0, 23) + "Z").getTime();
+
+    // Local client time at moment of sync
+    const clientNow = Date.now();
+
+    // Drift = difference between client and server clocks
+    // Used to align countdown across different devices
+    const drift = clientNow - serverNow;
+
+    // TIMER UPDATE LOOP
+    function update() {
+      const timeLeft = getTimeLeft(roundStartedAt, duration, drift);
+      text.textContent = timeLeft;
+
+      if (timeLeft > 3) {
+        dot.classList.remove("bg-red-500");
+        dot.classList.add("bg-green-500");
+
+        ping.classList.remove("bg-red-400");
+        ping.classList.add("bg-green-400");
+      } else {
+        dot.classList.remove("bg-green-500");
+        dot.classList.add("bg-red-500");
+
+        ping.classList.remove("bg-green-400");
+        ping.classList.add("bg-red-400");
+      }
+
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        text.textContent = "0";
+      }
+    }
+    // Run immediately so UI doesn't wait 1 second
+    update();
+    // Update timer every 1 second
+    timerInterval = setInterval(update, 1000);
+  }
   // -------- polling system ----------
   // Polling is the core sync mechanism between all players.
   // It ensures every client stays aligned with backend state.
@@ -68,7 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const status = await checkGuessStatus();
       if (!status) return;
 
-      // 🔥 NEW: detect statement change (SYNC FIX)
+      // Detect statement change (SYNC FIX)
       if (
         status.current_statement_id &&
         status.current_statement_id !== window.currentStatementId
@@ -83,7 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
           setSubmitEnabled(false);
         }
 
-        return; 
+        return;
       }
 
       // ---- GAME END DETECTION ----
@@ -93,12 +170,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         stopPolling();
 
-        setWaitingMessage("Game finished! Showing results...", { show: true });
+        setWaitingMessage("Game finished! Loading results...", { show: true });
 
         disablePlayers();
         setSubmitEnabled(false);
 
-        window.location.href = `/pages/result.html?game_id=${gameId}`;
+        setTimeout(() => {
+          window.location.href=`/pages/result.html?game_id=${gameId}`;
+        }, 3000);
 
         return;
       }
@@ -119,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     }, appConfig.timer.gamePollingInterval);
-  };
+  }
 
   function stopPolling() {
     if (pollingInterval) {
@@ -146,12 +225,15 @@ document.addEventListener("DOMContentLoaded", () => {
       return null;
     }
 
+    const gameRes = await fetch(`${API_BASE}/games/${gameId}`);
+    const game = await gameRes.json();
+
     setSubmitEnabled(false);
-    renderStatement(data);
+    renderStatement(data, game);
     return data;
   }
 
-  function renderStatement(data) {
+  function renderStatement(data, game) {
     const statementText = document.getElementById("statement-text");
 
     if (!data || !data.statement) {
@@ -163,6 +245,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Current statement id is critical for submit + polling sync
     window.currentStatementId = data.statement_id;
+
+    // START TIMER Progress bar
+    startTimer(
+      game.round_started_at,
+      appConfig.timer.statementTimer / 1000,
+      game.server_time,
+    );
+    console.log(
+      "timer data:",
+      game.round_started_at,
+      appConfig.timer.statementTimer,
+    );
   }
 
   loadStatement();
@@ -172,9 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Players are static per game session (loaded once)
 
   async function loadPlayers() {
-    const response = await fetch(
-      `${API_BASE}/games/${gameId}/players`,
-    );
+    const response = await fetch(`${API_BASE}/games/${gameId}/players`);
     const players = await response.json();
     console.log("players:", players);
     renderPlayers(players);
@@ -235,7 +327,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("selectedPlayer:", selectedPlayerId);
     setSubmitEnabled(false);
 
-    setWaitingMessage("Waiting for other players...", { show: true });
+    //setWaitingMessage("Waiting for other players...", { show: true });
 
     // Disable all player inputs
     disablePlayers();
@@ -250,16 +342,13 @@ document.addEventListener("DOMContentLoaded", () => {
       guessed_player_id: Number(selectedPlayerId),
     };
 
-    const response = await fetch(
-      `${API_BASE}/games/${gameId}/guesses`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+    const response = await fetch(`${API_BASE}/games/${gameId}/guesses`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify(payload),
+    });
 
     const result = await response.json();
     // Handle backend errors
@@ -275,7 +364,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     console.log("submit result", result);
-    setWaitingMessage("Waiting for other players...", { show: true });
+    //setWaitingMessage("Waiting for other players...", { show: true });
     disablePlayers();
     setSubmitEnabled(false);
   });

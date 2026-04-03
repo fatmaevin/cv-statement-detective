@@ -1,92 +1,89 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Game Page</title>
-  <link rel="stylesheet" href="/style/style.css" />
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game Page</title>
+    <link rel="stylesheet" href="/style/style.css" />
+  </head>
 
-<body class="page-container">
+  <body class="page-container">
+    <div class="card">
+      <header class="brand-bg text-center py-6">
+        <img
+          src="/images/CYF-logo.png"
+          alt="CV Matching Game Logo"
+          class="project-logo"
+        />
+        <h1 class="text-2xl font-bold">CV Personal Statement Game</h1>
+        <p class="opacity-90">Game Round</p>
+      </header>
 
-  <div class="card">
-    <header class="brand-bg text-center py-6">
-      <img
-      src="/images/CYF-logo.png"
-      alt="CV Matching Game Logo"
-      class="project-logo"
-      />
-      <h1 class="text-2xl font-bold">CV Personal Statement Game</h1>
-      <p class="opacity-90">Game Round</p>
-    </header>
+      <main class="card-body">
+        <section class="text-center space-y-3">
+          <h2 class="waiting-title">
+            Select the player which best matches the statement below
+          </h2>
+        </section>
 
-    <main class="card-body">
+        <div class="w-full mb-4">
+          <div
+            class="flex items-center justify-between mb-2 text-sm text-gray-600"
+          >
+            <!-- Timer -->
+            <div class="flex items-center gap-2">
+              <span>Time left:</span>
+              <span id="timeText" class="font-semibold text-gray-800">--</span>
 
-      <section class="text-center space-y-3">
-        <h2 class="waiting-title">
-          SELECT THE PLAYER WHICH BEST MATCHES THE STATEMENT BELOW
-        </h2>
-      </section>
+              <!-- Pulse dot -->
+              <span class="relative flex h-3 w-3 ml-1">
+                <span
+                  id="pulsePing"
+                  class="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 animate-ping"
+                ></span>
 
-      <!-- Statement -->
-      <section class="statement-box">
-        <p class="statement-label">Anonymous Personal Statement</p>
-
-        <blockquote id="statement-text" class="statement-text">
-          <!-- “I am a motivated and enthusiastic person with a passion for helping others,
-          learning new skills, and contributing positively to a team environment.” -->
-        </blockquote>
-      </section>
-      <p id="waiting-message" style="display: none;">
-         ⏳ Waiting for other players...
-      </p>
-      <!-- Guess Form -->
-      <section>
-        <h3 class="players-title">Choose a player</h3>
-
-        <form id="player-guess-form" class="guess-form">
-
-          <div id="players-options" class="players-options">
-
-            <!-- <label class="player-option" for="player-fred">
-              <input id="player-fred" type="radio" name="player" value="Fred" />
-              <span>FRED</span>
-            </label>
-
-            <label class="player-option" for="player-fatma">
-              <input id="player-fatma" type="radio" name="player" value="Fatma" />
-              <span>FATMA</span>
-            </label>
-
-            <label class="player-option" for="player-suraj">
-              <input id="player-suraj" type="radio" name="player" value="Suraj" />
-              <span>SURAJ</span>
-            </label>
-
-            <label class="player-option" for="player-jesus">
-              <input id="player-jesus" type="radio" name="player" value="Jesus" />
-              <span>JESUS</span>
-            </label>
-
-            <label class="player-option" for="player-sheida">
-              <input id="player-sheida" type="radio" name="player" value="Sheida" />
-              <span>SHEIDA</span>
-            </label> -->
-
+                <span
+                  id="pulseDot"
+                  class="relative inline-flex rounded-full h-3 w-3 bg-green-500"
+                ></span>
+              </span>
+            </div>
           </div>
+        </div>
 
-          <div class="start-section">
-            <button id="submit-guess-btn" type="submit" class="brand-button" disabled>
-              Submit
-            </button>
-          </div>
+        <!-- Statement -->
+        <section class="statement-box">
+          <p class="statement-label">Anonymous Personal Statement</p>
 
-        </form>
-      </section>
+          <blockquote id="statement-text" class="statement-text"></blockquote>
+        </section>
+        <p
+          id="waiting-message"
+          class="opacity-0 translate-y-2 transition-all duration-300 text-center text-gray-600 animate-pulse"
+        >
+          
+        </p>
+        <!-- Guess Form -->
+        <section>
+          <h3 class="players-title">Choose a player</h3>
 
-    </main>
-  </div>
+          <form id="player-guess-form" class="guess-form">
+            <div id="players-options" class="players-options"></div>
 
-</body>
-<script type="module" src="/js/game.js"></script>
+            <div class="start-section">
+              <button
+                id="submit-guess-btn"
+                type="submit"
+                class="brand-button"
+                disabled
+              >
+                Submit
+              </button>
+            </div>
+          </form>
+        </section>
+      </main>
+    </div>
+  </body>
+  <script type="module" src="/js/game.js"></script>
 </html>
