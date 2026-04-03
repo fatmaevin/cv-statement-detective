@@ -10,14 +10,38 @@ document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
   const gameId = params.get("game_id");
   localStorage.setItem("game_id", gameId);
-  const urlPasscode = params.get("passcode");
-  
-  if (urlPasscode) {
-    passcode.value = urlPasscode;
+
+  let locked = false;
+  async function checkGameStatus() {
+    try {
+      const response = await fetch(`${API_BASE}/debug/game-status/${gameId}`);
+      if (!response.ok) throw new Error("Failed to fetch game status");
+
+      const data = await response.json();
+
+      if (data.status !== "waiting" && !locked) {
+        locked = true;
+        form.style.display = "none";
+        const p = document.createElement("p");
+        p.textContent = "Game already started.You can not join!";
+        p.className = "text-red-500 font-bold text-center text-lg";
+        form.parentNode.appendChild(p);
+      }
+      return data.status;
+    } catch (error) {
+      return null;
+    }
   }
+  checkGameStatus();
+  setInterval(checkGameStatus, 2000);
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    const status = await checkGameStatus();
+
+    if (status !== "waiting") {
+      return;
+    }
 
     if (!gameId) {
       alert("Game not found");
