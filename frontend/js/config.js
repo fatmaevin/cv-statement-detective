@@ -14,6 +14,11 @@ const config = {
       maxLength: 500,
       disallowedRegex: /[^a-zA-Z0-9\s.,!?'"():;\-+/#&]/g,
     },
+    playerName: {
+      minLength: 2,
+      maxLength: 20,
+      invalidCharRegex: /[^a-zA-Z0-9\s'-]/g,
+    },
   },
 };
 

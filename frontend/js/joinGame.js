@@ -1,5 +1,5 @@
 import { appConfig } from "./config";
-import { sanitizeStatement } from "./validation";
+import { sanitizeStatement,validatePlayerName } from "./validation";
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -50,8 +50,15 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const name = userName.value;
     const inputPasscode = passcode.value;
+
+    const originalname = userName.value;
+    const nameValidation=validatePlayerName(originalname);
+    if(!nameValidation.isValid){
+      alert(nameValidation.error);
+      return;
+    }
+    const name=nameValidation.cleaned;
 
     const originalStatement = statement.value;
     const cleanedStatement=sanitizeStatement(originalStatement);
