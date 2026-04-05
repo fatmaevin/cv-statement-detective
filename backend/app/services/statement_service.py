@@ -54,6 +54,7 @@ def get_results(db: Session, game_id: int):
                 "statement_id": s.id,
                 "statement": s.statement,
                 "score": s.score,
+                "owner_name":s.player.name
             }
         )
 
