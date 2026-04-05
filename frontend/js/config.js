@@ -9,9 +9,16 @@ const config = {
     statementTimer: 15000,
     gamePollingInterval: 3000,
   },
+  validation: {
+    statement: {
+      maxLength: 500,
+      disallowedRegex: /[^a-zA-Z0-9\s.,!?'"():;\-+/#&]/g,
+    },
+  },
 };
 
 export const appConfig={
     apiBaseUrl:config.api[config.mode],
     timer:config.timer,
+    validation:config.validation
 };
