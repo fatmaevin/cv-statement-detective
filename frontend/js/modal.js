@@ -12,7 +12,7 @@ export function showModal({
 
   // set content
   titleEl.textContent = title;
-  messageEl.textContent = message;
+  messageEl.innerHTML = message;
 
   // show modal
   root.classList.remove("hidden");

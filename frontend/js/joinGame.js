@@ -1,6 +1,7 @@
 import { appConfig } from "./config";
-import { sanitizeStatement,validatePlayerName } from "./validation";
-
+import { sanitizeStatement, validatePlayerName } from "./validation";
+import { showAlert } from "./alert";
+import { showModal } from "./modal";
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("userJoinForm");
@@ -34,49 +35,64 @@ document.addEventListener("DOMContentLoaded", () => {
       return null;
     }
   }
+
+  if (!gameId) {
+    showAlert({ message: "Game not found", type: "error", blocking: true });
+    return;
+  }
   checkGameStatus();
   setInterval(checkGameStatus, 2000);
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const status = await checkGameStatus();
-
     if (status !== "waiting") {
-      return;
-    }
-
-    if (!gameId) {
-      alert("Game not found");
       return;
     }
 
     const inputPasscode = passcode.value;
 
     const originalname = userName.value;
-    const nameValidation=validatePlayerName(originalname);
-    if(!nameValidation.isValid){
-      alert(nameValidation.error);
+    const nameValidation = validatePlayerName(originalname);
+
+    if (!nameValidation.isValid) {
+      showAlert({
+        message: nameValidation.error,
+        type: "info",
+        blocking: false,
+      });
       return;
     }
-    const name=nameValidation.cleaned;
+
+    const name = nameValidation.cleaned;
 
     const originalStatement = statement.value;
-    const cleanedStatement=sanitizeStatement(originalStatement);
-    const hasStatementChanged= originalStatement!==cleanedStatement ;
-    if(hasStatementChanged){
-      const confirmContinue = confirm(
-        `We removed some unsupported characters from your statement:\n\n ${cleanedStatement} \n\n Do you want to continue?`,
-      );
-      if (!confirmContinue) {
-        return;
-      }
-    }
-   
+    const cleanedStatement = sanitizeStatement(originalStatement);
+    const hasStatementChanged = originalStatement !== cleanedStatement;
 
+    if (hasStatementChanged) {
+      showModal({
+        title: "Confirm changes",
+        message: `<p>We removed some unsupported characters from your statement:</p>
+                   <p class="mt-2 p-2 bg-gray-100 rounded">${cleanedStatement}</p>
+                    <p class="mt-2">Do you want to continue?</p>`,
+        onConfirm: () => {
+          submitForm(name, cleanedStatement, inputPasscode);
+        },
+        onCancel: () => {
+          console.log("User cancelled");
+        },
+      });
+      return;
+    }
+    submitForm(name, cleanedStatement, inputPasscode);
+  });
+  async function submitForm(name, cleanedStatement, inputPasscode) {
     const body = {
       name: name,
       statement: cleanedStatement,
     };
+
     if (inputPasscode) {
       body.passcode = inputPasscode;
     }
@@ -92,7 +108,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!response.ok) {
         const errData = await response.json();
-        alert(errData.detail || "Something went wrong");
+        showAlert({
+          message: errData.detail || "Something went wrong",
+          type: "error",
+        });
         return;
       }
 
@@ -102,7 +121,10 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.href = `/pages/waiting-room.html?game_id=${data.game_id}&playerId=${data.player_id}`;
     } catch (error) {
       console.error("Error:", error);
-      alert("Network error");
+      showAlert({
+        message: "Network error",
+        type: "error",
+      });
     }
-  });
+  }
 });
