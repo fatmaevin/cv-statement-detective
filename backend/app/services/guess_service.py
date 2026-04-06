@@ -76,6 +76,7 @@ def get_guess_status(db, game_id: int, statement_id: int):
         "is_complete": False,
         "is_expired": False,
         "game_status": game.status,
+        "host_forced_finish": game.host_forced_finish,
      }
 
     players = get_players(db=db, game_id=game_id)
@@ -116,6 +117,7 @@ def get_guess_status(db, game_id: int, statement_id: int):
         "is_complete": is_complete,
         "game_status": game.status,
         "is_expired": is_expired,
+        "host_forced_finish": game.host_forced_finish,
     }
 
 

@@ -80,19 +80,22 @@ def start_game(db: Session, game_id: int) -> Game | None:
 # SERVICE FUNCTION TO finish A GAME
 
 
-def finish_game(db: Session, game_id: int) -> Game | None:
+def finish_game(db: Session, game_id: int, host_forced: bool = False) -> dict | None:
     game = db.query(Game).filter(Game.id == game_id).first()
-
     if not game:
         return None
 
     game.status = "finished"
-    game.ended_at = datetime.utcnow().isoformat()
+    game.ended_at = datetime.utcnow()
+    game.host_forced_finish = host_forced 
 
     db.commit()
     db.refresh(game)
-    return game
 
+    return {
+        "game": game,
+        "host_forced_finish": host_forced
+    }
 
 # -------------------------------------
 # GAME FLOW ADVANCER (CRITICAL SECTION)

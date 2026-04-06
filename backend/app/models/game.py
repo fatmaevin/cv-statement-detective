@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, String, Integer
+from sqlalchemy import Column, String, Integer, Boolean
 from app.database import Base
 
 
@@ -16,3 +16,4 @@ class Game(Base):
     ended_at = Column(String, nullable=True)
     current_statement_id=Column(Integer,nullable=True)
     round_started_at = Column(String, nullable=True)
+    host_forced_finish = Column(Boolean, default=False)

@@ -9,6 +9,23 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log(appConfig.timer.gamePollingInterval);
   const API_BASE = appConfig.apiBaseUrl;
 
+  const hostAlert = document.createElement("div");
+  hostAlert.id = "hostAlert";
+  hostAlert.style.cssText = `
+    display:none;
+    color:white;
+    background-color:red;
+    text-align:center;
+    padding:10px;
+    font-weight:bold;
+    position:fixed;
+    top:0;
+    width:100%;
+    z-index:1000;
+  `;
+  hostAlert.textContent = "The host has finished the game early!";
+  document.body.appendChild(hostAlert);
+
   //--------add helper functions--------------------------
   // These helpers control player input state consistently across rounds
   function getPlayerInputs() {
@@ -167,20 +184,27 @@ document.addEventListener("DOMContentLoaded", () => {
       // Backend is the single source of truth for game lifecycle
       if (status?.game_status === "finished") {
         console.log("Game finished!");
-
+    
         stopPolling();
-
-        setWaitingMessage("Game finished! Loading results...", { show: true });
-
+    
         disablePlayers();
         setSubmitEnabled(false);
-
-        setTimeout(() => {
-          window.location.href=`/pages/result.html?game_id=${gameId}`;
-        }, 3000);
-
+    
+        // Show alert if host forced finish
+        if (status.host_forced_finish) {
+            hostAlert.style.display = "block";
+    
+            // Wait 5 seconds for the players to see it
+            setTimeout(() => {
+                window.location.href = `/pages/result.html?game_id=${gameId}`;
+            }, 5000);
+        } else {
+            // Normal finish, redirect immediately
+            window.location.href = `/pages/result.html?game_id=${gameId}`;
+        }
+    
         return;
-      }
+    }
 
       console.log("polling:", status);
       updateWaitingMessage(status);
