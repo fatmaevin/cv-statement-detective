@@ -1,4 +1,6 @@
 import { appConfig } from "./config";
+import { showAlert } from "./alert";
+import { validatePlayerName } from "./validation";
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("createLinkForm");
@@ -106,8 +108,19 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const hostName = nameInput.value.trim();
     const passcode = passcodeInput.value.trim();
+
+    const originalHostname = nameInput.value;
+    const HostnameValidation = validatePlayerName(originalHostname);
+    if (!HostnameValidation.isValid) {
+      showAlert({
+        message: HostnameValidation.error,
+        type: "info",
+        blocking: false,
+      });
+      return;
+    }
+    const hostName = HostnameValidation.cleaned;
 
     try {
       const response = await fetch(`${API_BASE}/games`, {

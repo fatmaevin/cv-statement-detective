@@ -17,7 +17,7 @@ const config = {
     playerName: {
       minLength: 2,
       maxLength: 20,
-      invalidCharRegex: /[^a-zA-Z0-9\s'-]/g,
+      invalidCharRegex: /[^a-zA-Z0-9\s'-]/,
     },
   },
 };
