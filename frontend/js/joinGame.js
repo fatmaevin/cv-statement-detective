@@ -1,4 +1,6 @@
 import { appConfig } from "./config";
+import { sanitizeStatement,validatePlayerName } from "./validation";
+
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("userJoinForm");
@@ -48,13 +50,32 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const name = userName.value;
-    const statementInput = statement.value;
     const inputPasscode = passcode.value;
+
+    const originalname = userName.value;
+    const nameValidation=validatePlayerName(originalname);
+    if(!nameValidation.isValid){
+      alert(nameValidation.error);
+      return;
+    }
+    const name=nameValidation.cleaned;
+
+    const originalStatement = statement.value;
+    const cleanedStatement=sanitizeStatement(originalStatement);
+    const hasStatementChanged= originalStatement!==cleanedStatement ;
+    if(hasStatementChanged){
+      const confirmContinue = confirm(
+        `We removed some unsupported characters from your statement:\n\n ${cleanedStatement} \n\n Do you want to continue?`,
+      );
+      if (!confirmContinue) {
+        return;
+      }
+    }
+   
 
     const body = {
       name: name,
-      statement: statementInput,
+      statement: cleanedStatement,
     };
     if (inputPasscode) {
       body.passcode = inputPasscode;

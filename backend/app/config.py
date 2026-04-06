@@ -1,1 +1,1 @@
-ROUND_DURATION = 15  # seconds
+ROUND_DURATION = 25  # seconds
