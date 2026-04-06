@@ -28,7 +28,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const statementCard = document.createElement("div");
         statementCard.className = "statement-card";
-        statementCard.textContent = `${item.statement}`;
+
+        const statementText = document.createElement("p");
+        statementText.className = "statement-text";
+        statementText.textContent = item.statement;
+
+        const ownerName = document.createElement("span");
+        ownerName.className = "owner-name";
+        ownerName.textContent = `${item.owner_name}`;
 
         const scoreCard = document.createElement("div");
         scoreCard.className = "score-card";
@@ -37,6 +44,8 @@ document.addEventListener("DOMContentLoaded", () => {
         score.className = "font-semibold";
         score.textContent = `Score: ${item.score}`;
 
+        statementCard.appendChild(statementText);
+        statementCard.appendChild(ownerName);
         scoreCard.appendChild(score);
         resultItem.appendChild(statementCard);
         resultItem.appendChild(scoreCard);
