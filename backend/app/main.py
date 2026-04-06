@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 
 
@@ -12,7 +12,7 @@ from app.services.game_service import (
 from app.services.player_service import join_game, get_players
 from app.services.statement_service import get_results, get_current_statement
 from app.services.guess_service import submit_guess, get_guess_status, get_game_status
-from app.schemas import JoinGameRequest, GameCreateRequest, SubmitGuessRequest
+from app.schemas import JoinGameRequest, GameCreateRequest, SubmitGuessRequest, FinishGameRequest
 from fastapi.middleware.cors import CORSMiddleware
 from app.models.game import Game
 from app.config import ROUND_DURATION
@@ -172,12 +172,18 @@ def check_guesses_endpoint(
 # GAME TERMINATION (MANUAL)
 # ---------------------------
 
-
 @app.patch("/games/{game_id}/finish")
-def finish_game_endpoint(game_id: int, db: Session = Depends(get_db)):
-    result = finish_game(db=db, game_id=game_id)
+def finish_game_endpoint(
+    game_id: int,
+    payload: FinishGameRequest,
+    db: Session = Depends(get_db),
+):
+    result = finish_game(
+        db=db,
+        game_id=game_id,
+        host_forced=payload.host_forced
+    )
     return result
-
 
 @app.get("/debug/game-status/{game_id}")
 def debug_game_status(game_id: int, db: Session = Depends(get_db)):

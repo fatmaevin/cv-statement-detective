@@ -213,36 +213,43 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // =========================
-  // FINISH GAME
-  // =========================
-  finishGameBtn.addEventListener("click", async () => {
+// =========================
+// FINISH GAME BUTTON HANDLER
+// =========================
+finishGameBtn.addEventListener("click", async () => {
+  try {
+    // Get the game ID from localStorage
     const gameId = localStorage.getItem("game_id");
-
-    if (!gameId) return;
-
-    try {
-      finishGameBtn.disabled = true;
-
-      const response = await fetch(`${API_BASE}/games/${gameId}/finish`, {
-        method: "PATCH",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to finish game");
-      }
-
-      startGameNote.textContent = "Game finished!";
-
-      if (pollingInterval) clearInterval(pollingInterval);
-
-      setTimeout(() => {
-        window.location.href = `/pages/result.html?game_id=${gameId}`;
-      }, 3000);
-    } catch (error) {
-      console.error("Error finishing game:", error);
-      finishGameBtn.disabled = false;
-      startGameNote.textContent = "Error finishing game.";
+    if (!gameId) {
+      throw new Error("Game ID not found. Make sure the game was created first.");
     }
-  });
+
+    // Send PATCH request to finish the game (host forced)
+    const res = await fetch(`${API_BASE}/games/${gameId}/finish`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ host_forced: true })
+    });
+
+    // Check for server errors
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Failed to finish game: ${res.status} ${text}`);
+    }
+
+    // Parse response JSON
+    const data = await res.json();
+
+    // Show alert only if host forced finish
+    if (data.host_forced_finish) {
+      alert("The host has finished the game early.");
+    }
+
+    // Redirect all players to the result page
+    window.location.href = `/pages/result.html?game_id=${gameId}`;
+  } catch (err) {
+    console.error("Error finishing game:", err);
+    alert(`An error occurred while finishing the game: ${err.message}`);
+  }
+});
 });
