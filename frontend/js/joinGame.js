@@ -1,5 +1,5 @@
 import { appConfig } from "./config";
-import { sanitizeStatement, validatePlayerName } from "./validation";
+import { sanitizeStatement, validatePlayerName , validateStatement} from "./validation";
 import { showAlert } from "./alert";
 import { showModal } from "./modal";
 
@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!nameValidation.isValid) {
       showAlert({
         message: nameValidation.error,
-        type: "info",
+        type: "warning",
         blocking: false,
       });
       return;
@@ -67,7 +67,30 @@ document.addEventListener("DOMContentLoaded", () => {
     const name = nameValidation.cleaned;
 
     const originalStatement = statement.value;
+    let statementValidation = validateStatement(originalStatement);
+    //validate before sanitize
+        if (!statementValidation.isValid) {
+          showAlert({
+            message: statementValidation.error,
+            type: "warning",
+            blocking: false,
+          });
+          return;
+        }
+
+    // sanitize
     const cleanedStatement = sanitizeStatement(originalStatement);
+    // validate after sanitize
+    statementValidation = validateStatement(cleanedStatement);
+
+    if (!statementValidation.isValid) {
+      showAlert({message:`${statementValidation.error} after sanitize`,
+        type:"warning",
+        blocking:false,
+      });
+      return;
+    }
+
     const hasStatementChanged = originalStatement !== cleanedStatement;
 
     if (hasStatementChanged) {
