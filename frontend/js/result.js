@@ -1,3 +1,4 @@
+import { showAlert } from "./alert";
 import { appConfig } from "./config";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -53,8 +54,12 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } catch (error) {
       console.error("Error fetching statements:", error);
-      statementsAndScores.textContent =
-        "Failed to load results. Please try again later.";
+      showAlert({ message: "Failed to load results. Please try again later." ,
+        type: "error",
+        blocking: true
+      });
+      // statementsAndScores.textContent =
+      //   "Failed to load results. Please try again later.";
       totalStatement.textContent = "Total statements: 0";
     }
   }
