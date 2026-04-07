@@ -255,14 +255,19 @@ finishGameBtn.addEventListener("click", async () => {
 
     // Show alert only if host forced finish
     if (data.host_forced_finish) {
-      alert("The host has finished the game early.");
+      showAlert({message:"The host has finished the game early.",
+        type: "error",
+        blocking: true
+      });
     }
 
     // Redirect all players to the result page
     window.location.href = `/pages/result.html?game_id=${gameId}`;
   } catch (err) {
     console.error("Error finishing game:", err);
-    alert(`An error occurred while finishing the game: ${err.message}`);
+    showAlert({message:`An error occurred while finishing the game: ${err.message}`,
+    type:"error",
+    blocking:true});
   }
 });
 });

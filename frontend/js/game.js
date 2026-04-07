@@ -1,3 +1,4 @@
+import { showAlert } from "./alert";
 import { appConfig } from "./config";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -8,24 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log(appConfig.apiBaseUrl);
   console.log(appConfig.timer.gamePollingInterval);
   const API_BASE = appConfig.apiBaseUrl;
-
-  const hostAlert = document.createElement("div");
-  hostAlert.id = "hostAlert";
-  hostAlert.style.cssText = `
-    display:none;
-    color:white;
-    background-color:red;
-    text-align:center;
-    padding:10px;
-    font-weight:bold;
-    position:fixed;
-    top:0;
-    width:100%;
-    z-index:1000;
-  `;
-  hostAlert.textContent = "The host has finished the game early!";
-  document.body.appendChild(hostAlert);
-
+  
   //--------add helper functions--------------------------
   // These helpers control player input state consistently across rounds
   function getPlayerInputs() {
@@ -192,7 +176,11 @@ document.addEventListener("DOMContentLoaded", () => {
     
         // Show alert if host forced finish
         if (status.host_forced_finish) {
-            hostAlert.style.display = "block";
+          showAlert({ message: "The host has finished the game early!" ,
+            type: "error",
+            blocking:true
+          });
+        
     
             // Wait 5 seconds for the players to see it
             setTimeout(() => {
@@ -344,7 +332,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectedPlayerId = getSelectedPlayer();
 
     if (!selectedPlayerId) {
-      alert("Please select a player");
+      showAlert({ message: "Please select a player" ,
+        type:"info",
+        blocking:false
+      });
+     
       return;
     }
 
@@ -388,7 +380,11 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     console.log("submit result", result);
-    //setWaitingMessage("Waiting for other players...", { show: true });
+    showAlert({message:"Guess submitted",
+      type:"info",
+      blocking:false
+    });
+    
     disablePlayers();
     setSubmitEnabled(false);
   });
