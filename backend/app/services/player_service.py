@@ -9,7 +9,7 @@ def join_game(db: Session, game_id: int, name: str, statement: str,passcode:str=
     game = game_check(db, game_id)
     if game.passcode:
         if not passcode:
-            raise HTTPException(status_code=400, detail="Game has an passcode please enter passcode")
+            raise HTTPException(status_code=400, detail="Game has a passcode please enter passcode")
         if game.passcode !=passcode:
             raise HTTPException(status_code=403, detail="Incorrect passcode")
     
