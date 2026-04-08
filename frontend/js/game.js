@@ -247,7 +247,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderStatement(data, game) {
     const statementText = document.getElementById("statement-text");
+     const statementBox = document.querySelector(".statement-box");
 
+     // toggle background color
+     statementBox.classList.toggle("alt");
+     
     if (!data || !data.statement) {
       statementText.textContent = "NO Statement available!";
       return;

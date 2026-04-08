@@ -116,6 +116,13 @@ h1 {
 
 .statement-box {
   @apply bg-gray-50 border border-gray-200 rounded-xl p-6 space-y-3;
+  background-color: #f9fafb; /* gray-50 */
+  transition: background-color 0.2s ease;
+}
+
+/* alternate state */
+.statement-box.alt {
+  background-color: #eff6ff;
 }
 
 .statement-label {
