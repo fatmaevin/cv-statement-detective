@@ -124,6 +124,9 @@ h1 {
 
 .statement-text {
   @apply text-lg text-gray-700 leading-relaxed italic;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: pre-wrap;
 }
 
 .guess-form {
