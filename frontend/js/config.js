@@ -13,7 +13,7 @@ const config = {
     statement: {
       minLength: 10,
       maxLength: 500,
-      disallowedRegex: /[^a-zA-Z0-9\s.,!?'"():;\-+/#&]/g,
+      disallowedRegex: /[^a-zA-Z0-9\s.,!?'"():;\-+\–/]/g,
     },
     playerName: {
       minLength: 2,
