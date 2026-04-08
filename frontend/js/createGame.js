@@ -106,6 +106,10 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    // Disable immediately to prevent multiple clicks
+    generateBtn.disabled = true;
+    generateBtn.textContent = "Game Creating...";
+
     const hostName = nameInput.value.trim();
     const passcode = passcodeInput.value.trim();
 
@@ -176,6 +180,10 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Error:", error);
       gameLinkDisplay.style.display = "block";
       gameLinkDisplay.textContent = "Error creating game link.";
+
+      // Re-enable button if something failed
+      generateBtn.disabled = false;
+      generateBtn.textContent = "Generate Link";
     }
   });
 
