@@ -1,5 +1,9 @@
 import { appConfig } from "./config";
-import { sanitizeStatement, validatePlayerName , validateStatement} from "./validation";
+import {
+  sanitizeStatement,
+  validatePlayerName,
+  validateStatement,
+} from "./validation";
 import { showAlert } from "./alert";
 import { showModal } from "./modal";
 
@@ -13,6 +17,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
   const gameId = params.get("game_id");
   localStorage.setItem("game_id", gameId);
+  const getPasscode = params.get("passcode");
+
+  if (getPasscode) {
+    passcode.value = getPasscode;
+  }
 
   let locked = false;
   async function checkGameStatus() {
@@ -69,14 +78,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const originalStatement = statement.value;
     let statementValidation = validateStatement(originalStatement);
     //validate before sanitize
-        if (!statementValidation.isValid) {
-          showAlert({
-            message: statementValidation.error,
-            type: "warning",
-            blocking: false,
-          });
-          return;
-        }
+    if (!statementValidation.isValid) {
+      showAlert({
+        message: statementValidation.error,
+        type: "warning",
+        blocking: false,
+      });
+      return;
+    }
 
     // sanitize
     const cleanedStatement = sanitizeStatement(originalStatement);
@@ -84,9 +93,10 @@ document.addEventListener("DOMContentLoaded", () => {
     statementValidation = validateStatement(cleanedStatement);
 
     if (!statementValidation.isValid) {
-      showAlert({message:`${statementValidation.error} after sanitize`,
-        type:"warning",
-        blocking:false,
+      showAlert({
+        message: `${statementValidation.error} after sanitize`,
+        type: "warning",
+        blocking: false,
       });
       return;
     }
