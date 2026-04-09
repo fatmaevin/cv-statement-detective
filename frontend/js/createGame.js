@@ -54,6 +54,10 @@ document.addEventListener("DOMContentLoaded", () => {
     nameInput.value = localStorage.getItem("host_name") || "";
     passcodeInput.value = localStorage.getItem("passcode") || "";
 
+    // Disable inputs (host cannot change after creation)
+    nameInput.disabled = true;
+    passcodeInput.disabled = true;
+
     generateBtn.textContent = "Game Created";
     generateBtn.disabled = true;
 
@@ -78,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (players.length === 0) {
         noPlayers.style.display = "block";
         startGameBtn.disabled = true;
-        startGameNote.textContent = "No players joined yet.";
+        startGameNote.textContent = "";
         return;
       }
 
@@ -169,6 +173,10 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem("game_link", data.game_link);
       localStorage.setItem("host_name", hostName);
       if (passcode) localStorage.setItem("passcode", passcode);
+
+      // Disable inputs immediately
+      nameInput.disabled = true;
+      passcodeInput.disabled = true;
 
       showGameScreen();
       await loadPlayers(data.game_id);
