@@ -116,6 +116,13 @@ h1 {
 
 .statement-box {
   @apply bg-gray-50 border border-gray-200 rounded-xl p-6 space-y-3;
+  background-color: #f9fafb; /* gray-50 */
+  transition: background-color 0.2s ease;
+}
+
+/* alternate state */
+.statement-box.alt {
+  background-color: #eff6ff;
 }
 
 .statement-label {
@@ -124,6 +131,9 @@ h1 {
 
 .statement-text {
   @apply text-lg text-gray-700 leading-relaxed italic;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: pre-wrap;
 }
 
 .guess-form {
