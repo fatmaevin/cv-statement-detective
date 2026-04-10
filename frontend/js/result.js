@@ -48,8 +48,8 @@ document.addEventListener("DOMContentLoaded", () => {
         statementCard.appendChild(statementText);
         statementCard.appendChild(ownerName);
         scoreCard.appendChild(score);
+        statementCard.appendChild(scoreCard)
         resultItem.appendChild(statementCard);
-        resultItem.appendChild(scoreCard);
         statementsAndScores.appendChild(resultItem);
       });
     } catch (error) {

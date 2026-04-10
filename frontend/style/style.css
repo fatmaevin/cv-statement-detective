@@ -142,6 +142,7 @@ h1 {
   overflow-wrap: anywhere;
   word-break: break-word;
   white-space: pre-wrap;
+  margin-top: 32px;
 }
 
 .guess-form {
@@ -188,24 +189,27 @@ h1 {
 
 .result-item {
   @apply flex
-  flex-col md:flex-row items-center gap-4;
+  flex-col md:flex-row items-center justify-center  gap-4;
 }
 .statement-card {
   @apply bg-white p-6
-  rounded-xl shadow-xl w-full md:w-96;
-  position: relative
+  rounded-xl shadow-xl w-full  max-w-2xl;
+  position: relative;
 }
 .score-card {
   @apply bg-gray-500
-  text-white px-4 py-2 rounded-lg;
+  text-white px-3 py-1 rounded-lg;
+  position: absolute;
+  top: 12px;
+  right: 12px;
 }
 .owner-name {
   position: absolute;
-  bottom: 5px;
-  right: 14px;
+  top: 12px;
+  left: 14px;
   font-size: 0.9rem;
   font-style: italic;
-  font-weight: 700; 
+  font-weight: 700;
   color: black;
 }
 /* ++++++++++++++++++++++++++++++++++++++++++++ */
@@ -235,4 +239,11 @@ h1 {
   .alert-close {
     @apply cursor-pointer text-lg leading-none ml-auto opacity-70 hover:opacity-100;
   }
+}
+body {
+  transition: opacity 0.35s ease;
+}
+
+body.fade-out {
+  opacity: 0;
 }
