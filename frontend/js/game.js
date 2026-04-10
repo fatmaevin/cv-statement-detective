@@ -1,5 +1,6 @@
 import { showAlert } from "./alert";
 import { appConfig } from "./config";
+import { navigateToResult } from "./transition";
 
 document.addEventListener("DOMContentLoaded", () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -184,11 +185,11 @@ document.addEventListener("DOMContentLoaded", () => {
     
             // Wait 5 seconds for the players to see it
             setTimeout(() => {
-                window.location.href = `/pages/result.html?game_id=${gameId}`;
+              navigateToResult(`/pages/result.html?game_id=${gameId}`);
             }, 5000);
         } else {
             // Normal finish, redirect immediately
-            window.location.href = `/pages/result.html?game_id=${gameId}`;
+            navigateToResult(`/pages/result.html?game_id=${gameId}`);
         }
     
         return;

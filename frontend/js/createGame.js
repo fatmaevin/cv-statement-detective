@@ -1,24 +1,25 @@
 import { appConfig } from "./config";
 import { showAlert } from "./alert";
+import { navigateToResult } from "./transition";
 import { validatePlayerName } from "./validation";
 
 document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("createLinkForm");
-    const nameInput = document.getElementById("playerName");
-    const passcodeInput = document.getElementById("passcodeInput");
-    const generateBtn = document.getElementById("generateBtn");
-  
-    const gameLinkDisplay = document.getElementById("gameLinkDisplay");
-    const playersSection = document.getElementById("playersSection");
-    const startGameBtn = document.getElementById("startGameBtn");
-    const finishGameBtn = document.getElementById("finishGameBtn");
-    const startGameNote = document.getElementById("startGameNote");
-    const noPlayers = document.getElementById("noPlayers");
-    const playersList = document.querySelector(".players-grid");
-  
+  const form = document.getElementById("createLinkForm");
+  const nameInput = document.getElementById("playerName");
+  const passcodeInput = document.getElementById("passcodeInput");
+  const generateBtn = document.getElementById("generateBtn");
+
+  const gameLinkDisplay = document.getElementById("gameLinkDisplay");
+  const playersSection = document.getElementById("playersSection");
+  const startGameBtn = document.getElementById("startGameBtn");
+  const finishGameBtn = document.getElementById("finishGameBtn");
+  const startGameNote = document.getElementById("startGameNote");
+  const noPlayers = document.getElementById("noPlayers");
+  const playersList = document.querySelector(".players-grid");
+
   let pollingInterval = null;
   const API_BASE = appConfig.apiBaseUrl;
-  
+
   // =========================
   // BUTTON STATE
   // =========================
@@ -27,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   updateGenerateButtonState();
   nameInput.addEventListener("input", updateGenerateButtonState);
-   // =========================
+  // =========================
   // SHOW GAME SCREEN
   // =========================
   function showGameScreen() {
@@ -139,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.removeItem("host_name");
         localStorage.removeItem("passcode");
 
-        window.location.href = `/pages/result.html?game_id=${gameId}`;
+        navigateToResult(`/pages/result.html?game_id=${gameId}`);
       }
     } catch (error) {
       console.error("Error checking game status:", error);
@@ -202,7 +203,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-
   // =========================
   // ON PAGE LOAD: RESTORE GAME
   // =========================
@@ -224,7 +224,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-
   // =========================
   // START GAME
   // =========================
@@ -236,7 +235,9 @@ document.addEventListener("DOMContentLoaded", () => {
       startGameBtn.disabled = true;
       startGameBtn.textContent = "Starting...";
 
-      const response = await fetch(`${API_BASE}/games/${gameId}/start`, { method: "POST" });
+      const response = await fetch(`${API_BASE}/games/${gameId}/start`, {
+        method: "POST",
+      });
       if (!response.ok) throw new Error("Failed to start game");
 
       startGameBtn.textContent = "Game Started";
@@ -252,60 +253,59 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // =========================
+  // FINISH GAME BUTTON HANDLER
+  // =========================
+  finishGameBtn.addEventListener("click", async () => {
+    try {
+      const gameId = localStorage.getItem("game_id");
+      if (!gameId) throw new Error("Game ID not found.");
 
-// =========================
-// FINISH GAME BUTTON HANDLER
-// =========================
-finishGameBtn.addEventListener("click", async () => {
-  try {
-    const gameId = localStorage.getItem("game_id");
-    if (!gameId) throw new Error("Game ID not found.");
+      const res = await fetch(`${API_BASE}/games/${gameId}/finish`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ host_forced: true }),
+      });
 
-    const res = await fetch(`${API_BASE}/games/${gameId}/finish`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ host_forced: true })
-    });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Failed to finish game: ${res.status} ${text}`);
+      }
 
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`Failed to finish game: ${res.status} ${text}`);
+      // Stop polling and clear localStorage
+      if (pollingInterval) clearInterval(pollingInterval);
+      localStorage.removeItem("game_id");
+      localStorage.removeItem("game_link");
+      localStorage.removeItem("host_name");
+      localStorage.removeItem("passcode");
+      showAlertAsync({
+        message: "The host has finished the game early.",
+        type: "warning",
+        blocking: true,
+      });
+      // Redirect host after closing alert
+      navigateToResult(`/pages/result.html?game_id=${gameId}`);
+    } catch (err) {
+      console.error("Error finishing game:", err);
+      showAlert({
+        message: `An error occurred while finishing the game: ${err.message}`,
+        type: "error",
+        blocking: true,
+      });
     }
+  });
 
-    // Stop polling and clear localStorage
-    if (pollingInterval) clearInterval(pollingInterval);
-    localStorage.removeItem("game_id");
-    localStorage.removeItem("game_link");
-    localStorage.removeItem("host_name");
-    localStorage.removeItem("passcode");
-    alert("The host has finished the game early.");
-    // Redirect host after closing alert
-    window.location.href = `/pages/result.html?game_id=${gameId}`;
+  // =========================
+  // HELPER FUNCTION TO SHOW ALERT AND WAIT FOR DISMISSAL
+  // =========================
 
-
-    // Redirect to result page
-    window.location.href = `/pages/result.html?game_id=${gameId}`;
-  } catch (err) {
-    console.error("Error finishing game:", err);
-    showAlert({
-      message: `An error occurred while finishing the game: ${err.message}`,
-      type: "error",
-      blocking: true
+  function showAlertAsync(options) {
+    return new Promise((resolve) => {
+      showAlert({
+        ...options,
+        onDismiss: resolve,
+      });
     });
   }
-});
-
-// =========================
-// HELPER FUNCTION TO SHOW ALERT AND WAIT FOR DISMISSAL
-// =========================
-
-function showAlertAsync(options) {
-  return new Promise((resolve) => {
-    showAlert({
-      ...options,
-      onDismiss: resolve
-    });
-  });
-}
-// =========================
+  // =========================
 });

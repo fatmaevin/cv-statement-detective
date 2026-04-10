@@ -240,3 +240,10 @@ h1 {
     @apply cursor-pointer text-lg leading-none ml-auto opacity-70 hover:opacity-100;
   }
 }
+body {
+  transition: opacity 0.35s ease;
+}
+
+body.fade-out {
+  opacity: 0;
+}
