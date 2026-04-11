@@ -4,6 +4,13 @@ import { navigateToResult } from "./transition";
 import { validatePlayerName } from "./validation";
 
 document.addEventListener("DOMContentLoaded", () => {
+  
+    showAlert({
+      message: "⚠️ Leaving this page may disconnect you from the game",
+      type: "error",
+      blocking: true,
+      
+    });
   const form = document.getElementById("createLinkForm");
   const nameInput = document.getElementById("playerName");
   const passcodeInput = document.getElementById("passcodeInput");
@@ -139,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.removeItem("game_link");
         localStorage.removeItem("host_name");
         localStorage.removeItem("passcode");
-
+        
         navigateToResult(`/pages/result.html?game_id=${gameId}`);
       }
     } catch (error) {

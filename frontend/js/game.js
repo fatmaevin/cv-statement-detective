@@ -1,8 +1,26 @@
 import { showAlert } from "./alert";
 import { appConfig } from "./config";
 import { navigateToResult } from "./transition";
+import { exitGuard } from "./exitGuard";
 
 document.addEventListener("DOMContentLoaded", () => {
+
+  exitGuard.allowExit = false;
+
+  showAlert({
+    message: "⚠️ Leaving this page may disconnect you from the game",
+    type: "error",
+    blocking: true,
+    
+  });
+
+  window.addEventListener("beforeunload", (e) => {
+    if (exitGuard.allowExit) return;
+
+    e.preventDefault();
+    e.returnValue = "";
+  });
+
   const urlParams = new URLSearchParams(window.location.search);
   const gameId = urlParams.get("game_id");
   console.log("game id=", gameId);
@@ -185,10 +203,12 @@ document.addEventListener("DOMContentLoaded", () => {
     
             // Wait 5 seconds for the players to see it
             setTimeout(() => {
+              exitGuard.allowExit = true;
               navigateToResult(`/pages/result.html?game_id=${gameId}`);
             }, 5000);
         } else {
             // Normal finish, redirect immediately
+            exitGuard.allowExit = true;
             navigateToResult(`/pages/result.html?game_id=${gameId}`);
         }
     
