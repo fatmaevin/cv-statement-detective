@@ -43,11 +43,34 @@ export function validatePlayerName(input) {
     error: isEmpty
       ? "Name is empty"
       :isTooShort
-      ? `Name must be at least ${minLength} characters`
-      : isTooLong
-        ? `Name must be less than ${maxLength} characters`
-        : hasInvalidChars
-          ? "Name contains invalid characters"
-          : null,
+        ? `Name must be at least ${minLength} characters`
+        : isTooLong
+          ? `Name must be less than ${maxLength} characters`
+          : hasInvalidChars
+            ? "Name contains invalid characters"
+            : null,
+  };
+}
+
+export function validateDuration(input) {
+  const { min, max } = appConfig.validation.duration;
+  const value = Number(input);
+  const isEmpty = input === "";
+  const isNotNumber = Number.isNaN(value);
+  const isTooShort = value < min;
+  const isTooLong = value > max;
+
+  return {
+    isValid: !isEmpty && !isNotNumber && !isTooShort && !isTooLong,
+    cleaned: value,
+    error: isEmpty
+      ? "Duration is required"
+      : isNotNumber
+        ? " Duration must be a number"
+        : isTooShort
+          ? `Minimum duration is ${min} seconds per statement`
+          : isTooLong
+            ? `Maximum duration is ${max} seconds per statement`
+            : null,
   };
 }
