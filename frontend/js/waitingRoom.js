@@ -3,7 +3,7 @@ import { showAlert } from "./alert";
 
 showAlert({
     message: "⚠️ Leaving this page may disconnect you from the game",
-    type: "error",
+    type: "info",
     blocking: true,
     
   });
