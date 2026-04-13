@@ -1,9 +1,18 @@
 import { appConfig } from "./config";
 import { showAlert } from "./alert";
 import { navigateToResult } from "./transition";
-import { validatePlayerName,validateDuration } from "./validation";
+
+import { showModal } from "./modal";
+import { validatePlayerName, validateDuration } from "./validation";
 
 document.addEventListener("DOMContentLoaded", () => {
+  
+  showAlert({
+    message: "⚠️ Leaving this page may disconnect you from the game",
+    type: "info",
+    blocking: true,
+      
+  });
   const form = document.getElementById("createLinkForm");
   const nameInput = document.getElementById("playerName");
   const passcodeInput = document.getElementById("passcodeInput");
@@ -286,46 +295,58 @@ document.addEventListener("DOMContentLoaded", () => {
   // FINISH GAME BUTTON HANDLER
   // =========================
   finishGameBtn.addEventListener("click", async () => {
-    try {
-      const gameId = localStorage.getItem("game_id");
-      if (!gameId) throw new Error("Game ID not found.");
+    showModal({
+      title: "Finish Game",
+      message: "Are you sure you want to finish the game?",
 
-      const res = await fetch(`${API_BASE}/games/${gameId}/finish`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ host_forced: true }),
-      });
+      onConfirm: async () => {
+        try {
+          const gameId = localStorage.getItem("game_id");
+          if (!gameId) throw new Error("Game ID not found.");
 
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Failed to finish game: ${res.status} ${text}`);
-      }
+          const res = await fetch(`${API_BASE}/games/${gameId}/finish`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ host_forced: true }),
+          });
 
-      // Stop polling and clear localStorage
-      if (pollingInterval) clearInterval(pollingInterval);
-      localStorage.removeItem("game_id");
-      localStorage.removeItem("game_link");
-      localStorage.removeItem("host_name");
-      localStorage.removeItem("passcode");
-      localStorage.removeItem("duration");
-      showAlertAsync({
-        message:
-          "The host has finished the game early.Redirecting to results...",
-        type: "warning",
-        blocking: true,
-      });
-      // Redirect host after closing alert
-      setTimeout(() => {
-        navigateToResult(`/pages/result.html?game_id=${gameId}`);
-      }, 5000);
-    } catch (err) {
-      console.error("Error finishing game:", err);
-      showAlert({
-        message: `An error occurred while finishing the game: ${err.message}`,
-        type: "error",
-        blocking: true,
-      });
-    }
+
+          if (!res.ok) {
+            const text = await res.text();
+            throw new Error(`Failed to finish game: ${res.status} ${text}`);
+          }
+
+          // Stop polling and clear localStorage
+          if (pollingInterval) clearInterval(pollingInterval);
+          localStorage.removeItem("game_id");
+          localStorage.removeItem("game_link");
+          localStorage.removeItem("host_name");
+          localStorage.removeItem("passcode");
+          localStorage.removeItem("duration");
+          showAlert({
+            message:  "The host has finished the game early.Redirecting to results...",
+            type: "warning",
+            blocking: true,
+          });
+          // Redirect host after closing alert
+          setTimeout(() => {
+                      navigateToResult(`/pages/result.html?game_id=${gameId}`);
+                      }, 5000);
+
+        } catch (err) {
+          console.error("Error finishing game:", err);
+          showAlert({
+            message: `An error occurred while finishing the game: ${err.message}`,
+            type: "error",
+            blocking: true,
+          });
+        }
+      },
+      onCancel: () => {
+        // Nothing to do
+      },
+    });
+
   });
 
   // =========================

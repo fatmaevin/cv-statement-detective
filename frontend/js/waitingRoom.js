@@ -1,4 +1,12 @@
 import { appConfig } from "./config";
+import { showAlert } from "./alert";
+
+showAlert({
+    message: "⚠️ Leaving this page may disconnect you from the game",
+    type: "info",
+    blocking: true,
+    
+  });
 
 const playersList = document.getElementById("playersList");
 const playerCount = document.getElementById("playerCount");

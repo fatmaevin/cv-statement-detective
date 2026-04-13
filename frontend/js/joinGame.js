@@ -6,8 +6,25 @@ import {
 } from "./validation";
 import { showAlert } from "./alert";
 import { showModal } from "./modal";
+import { exitGuard } from "./exitGuard";
 
 document.addEventListener("DOMContentLoaded", () => {
+    
+  exitGuard.allowExit = false;
+  
+    showAlert({
+      message: "⚠️ Leaving this page may disconnect you from the game",
+      type: "info",
+      blocking: true,
+    });
+
+    window.addEventListener("beforeunload", (e) => {
+      if (exitGuard.allowExit) return;
+
+      e.preventDefault();
+      e.returnValue = "";
+    });
+
   const form = document.getElementById("userJoinForm");
   const userName = document.getElementById("nameInput");
   const statement = document.getElementById("psInput");
@@ -150,6 +167,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const data = await response.json();
       localStorage.setItem("player_id", data.player_id);
+
+      exitGuard.allowExit = true;
 
       window.location.href = `/pages/waiting-room.html?game_id=${data.game_id}&playerId=${data.player_id}`;
     } catch (error) {
