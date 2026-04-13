@@ -17,3 +17,4 @@ class Game(Base):
     current_statement_id=Column(Integer,nullable=True)
     round_started_at = Column(String, nullable=True)
     host_forced_finish = Column(Boolean, default=False)
+    duration = Column(Integer,nullable=False,default=120)

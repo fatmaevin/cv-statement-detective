@@ -50,6 +50,7 @@ def create_game_endpoint(payload: GameCreateRequest, db: Session = Depends(get_d
         db=db,
         host_name=payload.host_name,
         passcode=payload.passcode,
+        duration=payload.duration,
     )
 
     return {
@@ -89,7 +90,8 @@ def get_game_endpoint(game_id: int, db: Session = Depends(get_db)):
         "status": game.status,
         "current_statement_id": game.current_statement_id,
         "round_started_at": game.round_started_at,
-        "server_time": datetime.utcnow().isoformat()
+        "server_time": datetime.utcnow().isoformat(),
+        "duration": game.duration
     }
 
 

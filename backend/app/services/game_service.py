@@ -14,13 +14,14 @@ from app.services.guess_service import is_round_complete
 from app.services.utils import is_round_expired
 
 
-def create_game(db: Session, host_name: str, passcode: str) -> Game:
+def create_game(db: Session, host_name: str, passcode: str,duration: int = 120) -> Game:
     try:
         host_id = random.randint(1000, 9999)
         new_game = Game(
             host_name=host_name,
             host_id=host_id,
             passcode=passcode,
+            duration=duration,
             created_at=datetime.utcnow().isoformat(),
         )
 

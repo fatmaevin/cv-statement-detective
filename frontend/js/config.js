@@ -20,6 +20,10 @@ const config = {
       maxLength: 20,
       invalidCharRegex: /[^a-zA-Z0-9\s'-]/,
     },
+    duration: {
+      min: 10, //sec
+      max: 900, //15 minutes
+    },
   },
 };
 
