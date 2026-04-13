@@ -32,5 +32,7 @@ def is_round_expired(game: Game) -> bool:
     start_time = datetime.fromisoformat(game.round_started_at)
     now = datetime.utcnow()
     elapsed = now - start_time
+
+    duration = game.duration if game.duration is not None else ROUND_DURATION
     
-    return elapsed > timedelta(seconds=ROUND_DURATION)       
+    return elapsed > timedelta(seconds=duration)       

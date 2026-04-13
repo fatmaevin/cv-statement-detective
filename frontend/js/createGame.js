@@ -1,8 +1,9 @@
 import { appConfig } from "./config";
 import { showAlert } from "./alert";
 import { navigateToResult } from "./transition";
+
 import { showModal } from "./modal";
-import { validatePlayerName } from "./validation";
+import { validatePlayerName, validateDuration } from "./validation";
 
 document.addEventListener("DOMContentLoaded", () => {
   
@@ -15,8 +16,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("createLinkForm");
   const nameInput = document.getElementById("playerName");
   const passcodeInput = document.getElementById("passcodeInput");
+  const durationInput = document.getElementById("durationInput");
   const generateBtn = document.getElementById("generateBtn");
 
+  durationInput.value=appConfig.timer.statementTimer/1000;
+    
   const gameLinkDisplay = document.getElementById("gameLinkDisplay");
   const playersSection = document.getElementById("playersSection");
   const startGameBtn = document.getElementById("startGameBtn");
@@ -25,8 +29,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const noPlayers = document.getElementById("noPlayers");
   const playersList = document.querySelector(".players-grid");
 
+
   let pollingInterval = null;
   const API_BASE = appConfig.apiBaseUrl;
+
 
   // =========================
   // BUTTON STATE
@@ -62,10 +68,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // populate inputs
     nameInput.value = localStorage.getItem("host_name") || "";
     passcodeInput.value = localStorage.getItem("passcode") || "";
+    durationInput.value = localStorage.getItem("duration") || appConfig.timer.statementTimer / 1000;
+
 
     // Disable inputs (host cannot change after creation)
     nameInput.disabled = true;
     passcodeInput.disabled = true;
+    durationInput.disabled = true;
 
     generateBtn.textContent = "Game Created";
     generateBtn.disabled = true;
@@ -166,26 +175,47 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const hostName = nameInput.value.trim();
     const passcode = passcodeInput.value.trim();
+   
+    const durationValidation = validateDuration(durationInput.value);
+    if(!durationValidation.isValid){
+      showAlert({
+        message: durationValidation.error,
+        type: "error",
+      });
+       generateBtn.disabled = false;
+       generateBtn.textContent = "Generate Link";
+       return;
+    }
+
+      const duration = durationValidation.cleaned;
 
     try {
       const response = await fetch(`${API_BASE}/games`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ host_name: hostName, passcode: passcode || "" }),
+        body: JSON.stringify({ host_name: hostName, passcode: passcode || "" , duration: duration}),
       });
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || "Failed to create game");
 
+      const gameRes = await fetch(`${API_BASE}/games/${data.game_id}`);
+      const gameFromDb = await gameRes.json();
+      
+      durationInput.value = gameFromDb.duration;
+
       // save in localStorage for reloads
       localStorage.setItem("game_id", data.game_id);
       localStorage.setItem("game_link", data.game_link);
       localStorage.setItem("host_name", hostName);
+      localStorage.setItem("duration", gameFromDb.duration);
+
       if (passcode) localStorage.setItem("passcode", passcode);
 
       // Disable inputs immediately
       nameInput.disabled = true;
       passcodeInput.disabled = true;
+      durationInput.disabled = true;
 
       showGameScreen();
       await loadPlayers(data.game_id);
@@ -280,6 +310,7 @@ document.addEventListener("DOMContentLoaded", () => {
             body: JSON.stringify({ host_forced: true }),
           });
 
+
           if (!res.ok) {
             const text = await res.text();
             throw new Error(`Failed to finish game: ${res.status} ${text}`);
@@ -291,15 +322,16 @@ document.addEventListener("DOMContentLoaded", () => {
           localStorage.removeItem("game_link");
           localStorage.removeItem("host_name");
           localStorage.removeItem("passcode");
+          localStorage.removeItem("duration");
           showAlert({
-            message: "The host has finished the game early!",
-            type: "error",
+            message:  "The host has finished the game early.Redirecting to results...",
+            type: "warning",
             blocking: true,
           });
           // Redirect host after closing alert
           setTimeout(() => {
                       navigateToResult(`/pages/result.html?game_id=${gameId}`);
-                      }, 3000)
+                      }, 5000);
 
         } catch (err) {
           console.error("Error finishing game:", err);
@@ -314,6 +346,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Nothing to do
       },
     });
+
   });
 
   // =========================

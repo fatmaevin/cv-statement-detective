@@ -11,6 +11,7 @@ class JoinGameRequest(BaseModel):
 class GameCreateRequest(BaseModel):
     host_name: str
     passcode: str
+    duration: int = 120
 
 
 class SubmitGuessRequest(BaseModel):

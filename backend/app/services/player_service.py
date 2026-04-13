@@ -12,6 +12,18 @@ def join_game(db: Session, game_id: int, name: str, statement: str,passcode:str=
             raise HTTPException(status_code=400, detail="Game has a passcode please enter passcode")
         if game.passcode !=passcode:
             raise HTTPException(status_code=403, detail="Incorrect passcode")
+        
+    # CHECK DUPLICATE NAME (ADD THIS)
+    existing_player = db.query(Player).filter(
+        Player.game_id == game_id,
+        Player.name.ilike(name)  # case-insensitive check
+    ).first()
+
+    if existing_player:
+        raise HTTPException(
+            status_code=400,
+            detail="This name is already taken in this game."
+        )
     
     player = Player(game_id=game_id, name=name)
 

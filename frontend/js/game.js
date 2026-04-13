@@ -195,9 +195,11 @@ document.addEventListener("DOMContentLoaded", () => {
     
         // Show alert if host forced finish
         if (status.host_forced_finish) {
-          showAlert({ message: "The host has finished the game early!" ,
-            type: "error",
-            blocking:true
+          showAlert({
+            message:
+              "The host has finished the game early! Redirecting to results...",
+            type: "warning",
+            blocking: true,
           });
         
     
@@ -286,13 +288,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // START TIMER Progress bar
     startTimer(
       game.round_started_at,
-      appConfig.timer.statementTimer / 1000,
+      game.duration ,
       game.server_time,
     );
     console.log(
       "timer data:",
       game.round_started_at,
-      appConfig.timer.statementTimer,
+      game.duration,
     );
   }
 
