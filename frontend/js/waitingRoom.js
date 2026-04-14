@@ -17,6 +17,12 @@ const gameId = params.get("game_id");
 
 const API_BASE = appConfig.apiBaseUrl;
 
+// Warn before leaving
+window.addEventListener("beforeunload", (e) => {
+  e.preventDefault();
+  e.returnValue = "";
+ });
+
 // Load players
 async function loadPlayers() {
   try {

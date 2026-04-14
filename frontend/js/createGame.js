@@ -19,7 +19,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const durationInput = document.getElementById("durationInput");
   const generateBtn = document.getElementById("generateBtn");
 
-  durationInput.value=appConfig.timer.statementTimer/1000;
+  durationInput.value = appConfig.timer.statementTimer / 1000 || 120;
+  durationInput.addEventListener("input", () => {
+    durationInput.value = durationInput.value.replace(/\D/g, "");
+  });
     
   const gameLinkDisplay = document.getElementById("gameLinkDisplay");
   const playersSection = document.getElementById("playersSection");
