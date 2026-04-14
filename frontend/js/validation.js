@@ -54,8 +54,9 @@ export function validatePlayerName(input) {
 
 export function validateDuration(input) {
   const { min, max } = appConfig.validation.duration;
-  const value = Number(input);
-  const isEmpty = input === "";
+  const trimmedInput=input.trim();
+  const value = Number(trimmedInput);
+  const isEmpty = trimmedInput === "";
   const isNotNumber = Number.isNaN(value);
   const isTooShort = value < min;
   const isTooLong = value > max;
