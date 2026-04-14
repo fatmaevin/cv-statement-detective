@@ -9,6 +9,18 @@ const gameId = params.get("game_id");
 
 const API_BASE = appConfig.apiBaseUrl;
 
+// Block back button
+history.pushState(null, "", window.location.href);
+window.addEventListener("popstate", () => {
+  history.pushState(null, "", window.location.href);
+});
+
+// Warn before leaving
+window.addEventListener("beforeunload", (e) => {
+  e.preventDefault();
+  e.returnValue = "";
+});
+
 // Load players
 async function loadPlayers() {
   try {
