@@ -1,5 +1,6 @@
 import { appConfig } from "./config";
 import { showAlert } from "./alert";
+import { exitGuard } from "./exitGuard";
 
 showAlert({
     message: "⚠️ Leaving this page may disconnect you from the game",
@@ -19,9 +20,11 @@ const API_BASE = appConfig.apiBaseUrl;
 
 // Warn before leaving
 window.addEventListener("beforeunload", (e) => {
-  e.preventDefault();
-  e.returnValue = "";
- });
+  if (exitGuard.allowExit) return;
+
+  e.preventDefault();
+  e.returnValue = "";
+});
 
 // Load players
 async function loadPlayers() {
@@ -65,6 +68,7 @@ async function checkGameStatus() {
     console.log("Game status:", game);
 
     if (game.status === "in_progress") {
+      exitGuard.allowExit = true; // allow navigation
       window.location.href = `/pages/game.html?game_id=${gameId}`;
     }
 
