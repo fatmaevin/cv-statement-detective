@@ -2,13 +2,6 @@ import { appConfig } from "./config";
 import { showAlert } from "./alert";
 import { exitGuard } from "./exitGuard";
 
-showAlert({
-    message: "⚠️ Leaving this page may disconnect you from the game",
-    type: "info",
-    blocking: true,
-    
-  });
-
 const playersList = document.getElementById("playersList");
 const playerCount = document.getElementById("playerCount");
 
@@ -18,6 +11,15 @@ const gameId = params.get("game_id");
 
 const API_BASE = appConfig.apiBaseUrl;
 
+document.addEventListener("DOMContentLoaded", () => {
+  exitGuard.allowExit = false;
+
+showAlert({
+  message: "⚠️ Leaving this page may disconnect you from the game",
+  type: "info",
+  blocking: true,
+  
+});
 // Warn before leaving
 window.addEventListener("beforeunload", (e) => {
   if (exitGuard.allowExit) return;
@@ -86,3 +88,6 @@ setInterval(() => {
 // Initial load
 loadPlayers();
 checkGameStatus();
+
+}); 
+
