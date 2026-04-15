@@ -1,12 +1,6 @@
 import { appConfig } from "./config";
 import { showAlert } from "./alert";
-
-showAlert({
-    message: "⚠️ Leaving this page may disconnect you from the game",
-    type: "info",
-    blocking: true,
-    
-  });
+import { exitGuard } from "./exitGuard";
 
 const playersList = document.getElementById("playersList");
 const playerCount = document.getElementById("playerCount");
@@ -17,11 +11,22 @@ const gameId = params.get("game_id");
 
 const API_BASE = appConfig.apiBaseUrl;
 
+document.addEventListener("DOMContentLoaded", () => {
+  exitGuard.allowExit = false;
+
+showAlert({
+  message: "⚠️ Leaving this page may disconnect you from the game",
+  type: "info",
+  blocking: true,
+  
+});
 // Warn before leaving
 window.addEventListener("beforeunload", (e) => {
-  e.preventDefault();
-  e.returnValue = "";
- });
+  if (exitGuard.allowExit) return;
+
+  e.preventDefault();
+  e.returnValue = "";
+});
 
 // Load players
 async function loadPlayers() {
@@ -65,6 +70,7 @@ async function checkGameStatus() {
     console.log("Game status:", game);
 
     if (game.status === "in_progress") {
+      exitGuard.allowExit = true; // allow navigation
       window.location.href = `/pages/game.html?game_id=${gameId}`;
     }
 
@@ -82,3 +88,6 @@ setInterval(() => {
 // Initial load
 loadPlayers();
 checkGameStatus();
+
+}); 
+
