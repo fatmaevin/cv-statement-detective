@@ -35,4 +35,12 @@ This project provides a website where:
 - Database: PostgreSQL
 - Dev environment: Vite
   
+## Video Demo
+
+https://cv-statement-detective.hosting.codeyourfuture.io/
+
+
+
+https://github.com/user-attachments/assets/d8d93584-df8f-4801-abc0-a13b40796403
+
 
