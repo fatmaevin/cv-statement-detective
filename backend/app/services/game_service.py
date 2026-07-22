@@ -30,7 +30,7 @@ def create_game(db: Session, host_name: str, passcode: str,duration: int = 120) 
         db.refresh(new_game)
 
         timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S")
-        new_game.game_link = f"https://cv-statement-detective.hosting.codeyourfuture.io/pages/join-game?host_id={host_id}&game_id={new_game.id}&passcode={passcode}&{timestamp}"
+        new_game.game_link = f"https://cv-statement-detective.grads.hosting.cyf.academy/pages/join-game?host_id={host_id}&game_id={new_game.id}&passcode={passcode}&{timestamp}"
 
         db.commit()
         db.refresh(new_game)
