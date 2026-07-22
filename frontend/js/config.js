@@ -3,10 +3,10 @@ const config = {
   mode: "production",
   api: {
     development: "http://localhost:8000",
-    production: "https://api.hosting.codeyourfuture.io",
+    production: "https://api.grads.hosting.cyf.academy",
   },
   timer: {
-    statementTimer: 120000,//2 minutes
+    statementTimer: 120000, //2 minutes
     gamePollingInterval: 3000,
   },
   validation: {
