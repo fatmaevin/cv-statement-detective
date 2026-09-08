@@ -12,8 +12,8 @@ const config = {
   validation: {
     statement: {
       minLength: 10,
-      maxLength: 500,
-      disallowedRegex: /[^a-zA-Z0-9\s.,!?'"():;\-+\–/]/g,
+      maxLength: 1000,
+      disallowedRegex: /[^a-zA-Z0-9\s.,!?'"():;\-+\–/#]/g,
     },
     playerName: {
       minLength: 2,
@@ -27,8 +27,8 @@ const config = {
   },
 };
 
-export const appConfig={
-    apiBaseUrl:config.api[config.mode],
-    timer:config.timer,
-    validation:config.validation
+export const appConfig = {
+  apiBaseUrl: config.api[config.mode],
+  timer: config.timer,
+  validation: config.validation,
 };
